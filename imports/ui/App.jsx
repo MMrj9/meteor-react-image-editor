@@ -12,11 +12,30 @@ const initialState = {
   imageDimensions: {
     width: null,
     height: null,
-  }
+  },
+  shouldRerender: false
 }
 
 class App extends Component {
   state = initialState;
+
+  handleResize = () => {
+    const { file } = this.state; 
+    if(file) {
+      this.setState({shouldRerender: true});
+    }
+  }
+
+  componentDidMount() {
+    window.addEventListener('resize', this.handleResize)
+  }
+
+  componentDidUpdate() {
+    const { shouldRerender } = this.state; 
+    if(shouldRerender) {
+      this.setState({shouldRerender: false});
+    }
+  }
 
   setFile = (fileName, fileData) => {
     Meteor.call('file-upload', fileName, fileData, (err, file) => {
@@ -88,7 +107,14 @@ class App extends Component {
   }
 
   render() {
-    const { file, commandHistory, currentCommandHistory, imageData, selection, imageDimensions } = this.state; 
+    const { 
+      file, 
+      commandHistory, 
+      currentCommandHistory, 
+      imageData, 
+      selection, 
+      imageDimensions, 
+      shouldRerender } = this.state; 
     return <div className="wrapper">
             <div className="editor">
               <Editor 
@@ -103,10 +129,11 @@ class App extends Component {
             <div className="viewer">
               {!file 
               ? <UploadFile setFile={this.setFile}/> 
-              : <img 
+              : !shouldRerender 
+              ? <img 
                 src={`/images/${file}`} 
                 className="image" 
-                onLoad={(img) => this.setImageDimensions(img.target)}/>}
+                onLoad={(img) => this.setImageDimensions(img.target)}/> : null}
               {imageData && <Dimensions imageData={imageData} imageDimensions={imageDimensions} />}
               {imageData && selection && <Selection />}
             </div>
