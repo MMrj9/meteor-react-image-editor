@@ -3,9 +3,27 @@ import { RESIZE_OPTIONS } from '../data/JimpHelpers';
 
 export default COMMANDS = [
     {
+      name: "crop",
+      description: "Crop to the given region",
+      params: []
+    },
+    {
       name: "flip",
       description: "Flip the image horizontally or vertically",
       params: [{ name: "horizontal", type: BOOLEAN, defaultValue: false},{ name: "vertical", type: BOOLEAN, defaultValue: false}]
+    },
+    {
+      name: "rotate",
+      description: "Rotate the image clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.",
+      params: [
+        { name: "degress", type: RANGE, defaultValue: 0, min: 0, max: 360, step: 1 }, 
+        { name: "mode", type: SELECT, defaultValue: false, 
+          options: [
+            { value: false, label: "Don't Resize" }, 
+            { value: true, label: "Resize Default" },
+            ...RESIZE_OPTIONS
+        ]}
+      ]
     },
     {
       name: "brightness",
@@ -41,19 +59,6 @@ export default COMMANDS = [
       name: "sepia",
       description: "Apply a sepia wash to the image",
       params: []
-    },
-    {
-      name: "rotate",
-      description: "Rotate the image clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.",
-      params: [
-        { name: "degress", type: RANGE, defaultValue: 0, min: 0, max: 360, step: 1 }, 
-        { name: "mode", type: SELECT, defaultValue: false, 
-          options: [
-            { value: false, label: "Don't Resize" }, 
-            { value: true, label: "Resize Default" },
-            ...RESIZE_OPTIONS
-        ]}
-      ]
     },
     {
       name: "gaussian",
