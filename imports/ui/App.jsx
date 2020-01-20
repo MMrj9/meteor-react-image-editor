@@ -7,7 +7,12 @@ const initialState = {
   file : null,
   commandHistory: [],
   currentCommandHistory: null,
-  imageData: null
+  imageData: null,
+  selection: null,
+  imageDimensions: {
+    width: null,
+    height: null,
+  }
 }
 
 class App extends Component {
@@ -20,7 +25,6 @@ class App extends Component {
           file,
         }]
         const currentCommandHistory = 0;
-        console.log(file);
         this.setState({file, commandHistory, currentCommandHistory});
         this.updateImageData();
     });
@@ -75,8 +79,16 @@ class App extends Component {
     });
   }
 
+  setImageDimensions = (img) => {
+    const imageDimensions = {
+        height:img.offsetHeight,
+        width:img.offsetWidth
+    }
+    this.setState({imageDimensions});
+  }
+
   render() {
-    const { file, commandHistory, currentCommandHistory, imageData } = this.state; 
+    const { file, commandHistory, currentCommandHistory, imageData, selection, imageDimensions } = this.state; 
     return <div className="wrapper">
             <div className="editor">
               <Editor 
@@ -89,8 +101,14 @@ class App extends Component {
                 clear={this.clear}/>
             </div>
             <div className="viewer">
-              {!file ? <UploadFile setFile={this.setFile}/> : <img src={`/images/${file}`} className="image"/>}
-              {imageData && <Dimensions imageData={imageData}/>}
+              {!file 
+              ? <UploadFile setFile={this.setFile}/> 
+              : <img 
+                src={`/images/${file}`} 
+                className="image" 
+                onLoad={(img) => this.setImageDimensions(img.target)}/>}
+              {imageData && <Dimensions imageData={imageData} imageDimensions={imageDimensions} />}
+              {imageData && selection && <Selection />}
             </div>
            </div>
   }
