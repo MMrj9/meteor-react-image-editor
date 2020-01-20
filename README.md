@@ -5,6 +5,9 @@ You don't need any db or image hosting service to run this project. Images are s
 
 This project is currently under development.
 
+![Screenshot](https://imgur.com/I5xSt6z)
+
+
 ## Table of Contents
 
 - [Installation](#installation)
