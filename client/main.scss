@@ -1,0 +1,79 @@
+$black: #242331;
+$green: #6BD425;
+$green-dark: #618B25;
+$blue: #006494;
+$yellow: #DDCA7D;
+
+
+body {
+    margin: 0;
+    font-family: sans-serif;
+    color: white;
+}
+
+.wrapper {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+}
+  
+.editor {
+    flex: 1;
+    background-color: $black;
+    padding: 20px;
+    .commands {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        .form,.history {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .form {
+            .toolbar {
+                display: flex;
+                align-items: center;            
+                margin-bottom: 10px;
+                .toolbar-icon {
+                    margin-right: 10px;
+                }
+            }
+        }
+        .history {
+            .history-console {
+                height: 100%;
+                margin-top: 20px;
+                padding: 5px 10px;
+                .test{
+                    background-color: $yellow !important;
+                }
+            }
+            .history-buttons {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                button {
+                    flex: 1;
+                    margin: 0 10px;
+                }
+            }
+        }
+    }
+}
+
+.viewer {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;    
+
+    .image {
+        max-width: 90%;
+    }
+}
+
+.clickable {
+    cursor: pointer;
+}

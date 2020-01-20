@@ -1,0 +1,68 @@
+import { BOOLEAN, RANGE, SELECT } from '../data/CommandTypes';
+import { RESIZE_OPTIONS } from '../data/JimpHelpers';
+
+export default COMMANDS = [
+    {
+      name: "flip",
+      description: "Flip the image horizontally or vertically",
+      params: [{ name: "horizontal", type: BOOLEAN, defaultValue: false},{ name: "vertical", type: BOOLEAN, defaultValue: false}]
+    },
+    {
+      name: "brightness",
+      description: "Adjust the brighness by a value -1 to +1",
+      params: [{ name: "value", type: RANGE, defaultValue: 0, min: -1, max: 1, step: 0.01 }]
+    },
+    {
+      name: "contrast",
+      description: "Adjust the contrast by a value -1 to +1",
+      params: [{ name: "value", type: RANGE, defaultValue: 0, min: -1, max: 1, step: 0.001 }]
+    },
+    {
+      name: "dither565",
+      description: "Ordered dithering of the image and reduce color space to 16-bits (RGB565)",
+      params: []
+    },
+    {
+      name: "greyscale",
+      description: "Remove colour from the image",
+      params: []
+    },
+    {
+      name: "invert",
+      description: "Invert the image colours",
+      params: []
+    },
+    {
+      name: "normalize",
+      description: "Normalize the channels in an image",
+      params: []
+    },
+    {
+      name: "sepia",
+      description: "Apply a sepia wash to the image",
+      params: []
+    },
+    {
+      name: "rotate",
+      description: "Rotate the image clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.",
+      params: [
+        { name: "degress", type: RANGE, defaultValue: 0, min: 0, max: 360, step: 1 }, 
+        { name: "mode", type: SELECT, defaultValue: false, 
+          options: [
+            { value: false, label: "Don't Resize" }, 
+            { value: true, label: "Resize Default" },
+            ...RESIZE_OPTIONS
+        ]}
+      ]
+    },
+    {
+      name: "gaussian",
+      description: "Gaussian blur the image by r pixels (VERY slow)",
+      params: [{ name: "value", type: RANGE, defaultValue: 1, min: 1, max: 10, step: 1 }]
+    },
+    {
+      name: "blur",
+      description: "Fast blur the image by r pixels",
+      params: [{ name: "value", type: RANGE, defaultValue: 1, min: 1, max: 100, step: 1 }]
+    },
+  ]
