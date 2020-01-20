@@ -3,7 +3,16 @@ import fs from "fs";
 import path from "path";
 import Jimp from "jimp";
 
+import "./ImagesServer";
+
 const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#images';
+
+let imageData = {
+  dimensions: {
+    width: null,
+    height: null
+  }
+}
 
 Meteor.startup(function() {
   //Delete all files from image directory
@@ -14,17 +23,26 @@ Meteor.methods({
   'file-upload': (fileName, fileData) => {
     try {
       fs.writeFileSync(`${IMAGE_DIR_PATH}/${fileName}`, fileData, 'binary');
+      updateImageDimensions(fileName);
       return fileName;
     } catch(e) {
+      console.log(e);
       return null;
     }
+  },
+  'get-file-data': async (fileName) => {
+    if(fileName) {
+      //Updatet current image data
+      await updateImageDimensions(fileName);
+    } 
+    return imageData;
   },
   'delete-all-files': () => {
     deleteAllFiles();
   },
   'apply-command': async (fileName, command, params) => {
     const timestamp = (new Date()).getTime();
-    const newFile = await Jimp.read(`${IMAGE_DIR_PATH}/${fileName}`)
+    const newFileName = await Jimp.read(`${IMAGE_DIR_PATH}/${fileName}`)
     .then(img => {
       const newFileName= `${timestamp}${fileName}`;
       switch (command) {
@@ -69,24 +87,24 @@ Meteor.methods({
     .catch(err => {
       console.error(err);
     });
-    return newFile;
+    updateImageDimensions(newFileName);
+    return newFileName;
   },
 });
 
-WebApp.connectHandlers.use(function(req, res, next) {
-    var re = /^\/images\/(.*)$/.exec(req.url);
-    if (re !== null) {
-        var filePath = process.env.PWD + '/public/.#images/' + re[1];
-        var data = fs.readFileSync(filePath);
-        res.writeHead(200, {
-                'Content-Type': 'image'
-            });
-        res.write(data);
-        res.end();
-    } else {
-        next();
-    }
-});
+
+const updateImageDimensions = (fileName) => {
+    Jimp.read(`${IMAGE_DIR_PATH}/${fileName}`)
+    .then(img => {
+      imageData.dimensions.width = img.bitmap.width;
+      imageData.dimensions.height = img.bitmap.height;
+      return imageData;
+    })
+    .catch(err => {
+      console.error(err);
+      return null;
+    });
+}
 
 const deleteAllFiles = () => {
     fs.readdir(IMAGE_DIR_PATH, (err, files) => {
