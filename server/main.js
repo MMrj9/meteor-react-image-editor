@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import fs from "fs";
 import path from "path";
 import Jimp from "jimp";
-import { log } from 'util';
 
 const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#images';
 
@@ -17,7 +16,6 @@ Meteor.methods({
       fs.writeFileSync(`${IMAGE_DIR_PATH}/${fileName}`, fileData, 'binary');
       return fileName;
     } catch(e) {
-      console.log(e);
       return null;
     }
   },
@@ -91,13 +89,15 @@ WebApp.connectHandlers.use(function(req, res, next) {
 });
 
 const deleteAllFiles = () => {
-  fs.readdir(IMAGE_DIR_PATH, (err, files) => {
-    if (err) throw err;
-  
-    for (const file of files) {
-      fs.unlink(path.join(IMAGE_DIR_PATH, file), err => {
-        if (err) throw err;
-      });
-    }
-  });
+    fs.readdir(IMAGE_DIR_PATH, (err, files) => {
+      if (err) {
+        fs.mkdirSync(IMAGE_DIR_PATH, { recursive: true });
+      } else {
+        for (const file of files) {
+          fs.unlink(path.join(IMAGE_DIR_PATH, file), err => {
+            if (err) throw err;
+          });
+        }
+      }
+    });
 }
