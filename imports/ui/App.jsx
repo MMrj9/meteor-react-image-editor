@@ -2,13 +2,21 @@ import React, { Component } from 'react';
 import UploadFile from './UploadFile.jsx';
 import Editor from './Editor.jsx';
 import Dimensions from './Dimensions.jsx';
+import Selection from './Selection.jsx';
+import { validateSelection } from '../helpers/selection';
+
 
 const initialState = {
   file : null,
   commandHistory: [],
   currentCommandHistory: null,
   imageData: null,
-  selection: null,
+  selection: {
+    originX: 0,
+    originY: 0,
+    width: 0,
+    height: 0,
+  },
   imageDimensions: {
     width: null,
     height: null,
@@ -66,7 +74,7 @@ class App extends Component {
        file,
       }
       commandHistory.push(newCommandHistory);
-      this.setState({file, commandHistory, currentCommandHistory: commandHistory.length-1});
+      this.setState({...initialState, file, commandHistory, currentCommandHistory: commandHistory.length-1});
       this.updateImageData();
     });
   }
@@ -87,7 +95,7 @@ class App extends Component {
       const nextCommandHistoryIndex = currentCommandHistory + 1;
       const nextCommandHistory = commandHistory[nextCommandHistoryIndex];
       this.setState({file: nextCommandHistory.file, currentCommandHistory: nextCommandHistoryIndex});
-      this.updateImageData(previousCommandHistory.file);
+      this.updateImageData(nextCommandHistory.file);
     }
   }
 
@@ -104,6 +112,31 @@ class App extends Component {
         width:img.offsetWidth
     }
     this.setState({imageDimensions});
+  }
+
+  setStateVariable = (variable, param = null, value) => {
+      const { imageData } = this.state;
+      const stateVariable  = this.state[variable];
+      if(stateVariable) {
+        if(param) {
+          stateVariable[param] = value;
+        } else {
+          stateVariable = value;
+        }
+      }
+      switch (variable) {
+        case "selection":
+            const isValidSelection = validateSelection(stateVariable, imageData);
+            if(!isValidSelection) {
+              return false;
+            }
+          break;
+      
+        default:
+          break;
+      }
+      this.setState({[stateVariable]: stateVariable});
+      return true;
   }
 
   render() {
@@ -124,18 +157,23 @@ class App extends Component {
                 currentCommandHistory={currentCommandHistory}
                 next={this.next}
                 previous={this.previous}
-                clear={this.clear}/>
+                clear={this.clear}
+                imageData={imageData}
+                setStateVariable={this.setStateVariable}/>
             </div>
             <div className="viewer">
               {!file 
               ? <UploadFile setFile={this.setFile}/> 
               : !shouldRerender 
-              ? <img 
-                src={`/images/${file}`} 
-                className="image" 
-                onLoad={(img) => this.setImageDimensions(img.target)}/> : null}
+              ? <div className="image-container">
+                  <img 
+                  src={`/images/${file}`} 
+                  className="image" 
+                  onLoad={(img) => this.setImageDimensions(img.target)}/> 
+                  {imageData && imageDimensions && selection && <Selection selection={selection} imageData={imageData} imageDimensions={imageDimensions}/>}
+                </div>
+                : null}
               {imageData && <Dimensions imageData={imageData} imageDimensions={imageDimensions} />}
-              {imageData && selection && <Selection />}
             </div>
            </div>
   }

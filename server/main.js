@@ -46,6 +46,9 @@ Meteor.methods({
     .then(img => {
       const newFileName= `${timestamp}${fileName}`;
       switch (command) {
+        case "crop":
+          img.crop(params[0], params[1], params[2], params[3]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          break
         case "flip":
           img.flip(params[0], params[1]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
@@ -98,6 +101,8 @@ const updateImageDimensions = (fileName) => {
     .then(img => {
       imageData.dimensions.width = img.bitmap.width;
       imageData.dimensions.height = img.bitmap.height;
+      imageData.dimensions.originX = 0;
+      imageData.dimensions.originY = 0;
       return imageData;
     })
     .catch(err => {

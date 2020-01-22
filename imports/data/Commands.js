@@ -1,11 +1,16 @@
 import { BOOLEAN, RANGE, SELECT } from '../data/CommandTypes';
-import { RESIZE_OPTIONS } from '../data/JimpHelpers';
+import { RESIZE_OPTIONS } from '../helpers/jimp';
 
-export default COMMANDS = [
+export default COMMANDS = (imageData) => [
     {
       name: "crop",
       description: "Crop to the given region",
-      params: []
+      params: [
+        { name: "originX", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: imageData && imageData.dimensions && imageData.dimensions.width, step: 1 }, 
+        { name: "originY", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: imageData && imageData.dimensions && imageData.dimensions.height, step: 1 }, 
+        { name: "width", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: imageData && imageData.dimensions && imageData.dimensions.width, step: 1 }, 
+        { name: "height", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: imageData && imageData.dimensions && imageData.dimensions.height, step: 1 },
+      ]
     },
     {
       name: "flip",
