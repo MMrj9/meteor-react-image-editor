@@ -38,7 +38,7 @@ export default class Editor extends Component {
       } else {
         this.setState({ [param.name]: value });
       }
-    }, 10);
+    }, 1);
   }
 
   sendCommand = () => {
@@ -102,8 +102,8 @@ export default class Editor extends Component {
   download = () => {
     const { file } = this.props;
     const a = document.createElement('a');
-    a.href =`/images/${file}`;
-    a.download = `/images/${file}`;
+    a.href =`/images/${file.file}`;
+    a.download = `/images/${file.file}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -174,10 +174,10 @@ export default class Editor extends Component {
     this.setState({...clearParams, selectedCommand: newCommand});
   }
 
-  _renderCommandSelection = (newCommand) => {
-    const { imageData } = this.props;
+  _renderCommandSelection = () => {
+    const { canvas } = this.props;   
     return <Autocomplete
-            options={COMMANDS(imageData)}
+            options={COMMANDS(canvas)}
             getOptionLabel={command => command.name}
             style={{ width: 250, marginLeft: "auto" }}
             renderInput={params => (

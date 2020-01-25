@@ -1,23 +1,26 @@
 import React, { Component } from 'react';
+import _ from "underscore";
+
 import UploadFile from './UploadFile.jsx';
 import Editor from './Editor.jsx';
 import Dimensions from './Dimensions.jsx';
+import Layers from './Layers.jsx';
 import Selection from './Selection.jsx';
 import { validateSelection } from '../helpers/selection';
 
 
 const initialState = {
-  file : null,
+  layers : [],
+  selectedLayer: null,
   commandHistory: [],
   currentCommandHistory: null,
-  imageData: null,
   selection: {
     originX: 0,
     originY: 0,
     width: 0,
     height: 0,
   },
-  imageDimensions: {
+  canvas: {
     width: null,
     height: null,
   },
@@ -27,9 +30,14 @@ const initialState = {
 class App extends Component {
   state = initialState;
 
+  getSelectedLayer = () => {
+    const { layers, selectedLayer } = this.state; 
+    return layers[selectedLayer];
+  }
+
   handleResize = () => {
-    const { file } = this.state; 
-    if(file) {
+    const { layers } = this.state; 
+    if(!_.isEmpty(layers)) {
       this.setState({shouldRerender: true});
     }
   }
@@ -45,37 +53,37 @@ class App extends Component {
     }
   }
 
-  setFile = (fileName, fileData) => {
-    Meteor.call('file-upload', fileName, fileData, (err, file) => {
+  uploadFile = (fileName, fileData) => {
+    Meteor.call('file-upload', fileName, fileData, (err, layers) => {
         const commandHistory = [{
-          command: `fileUpload()`,
-          file,
+          command: `fileUpload(${fileName})`,
+          layers,
         }]
         const currentCommandHistory = 0;
-        this.setState({file, commandHistory, currentCommandHistory});
-        this.updateImageData();
+        const selectedLayer = 0;
+        this.setState({layers, commandHistory, currentCommandHistory, selectedLayer });
     });
   }
 
-  updateImageData = () => {
-    Meteor.call('get-file-data', (err, imageData) => {
-      this.setState({ imageData });
-    })
-  }
-
   sendCommand = (command, params) => {
-    const { file, commandHistory, currentCommandHistory } = this.state; 
-    Meteor.call('apply-command', file, command, params, (err, file) => {
+    const { commandHistory, currentCommandHistory, canvas } = this.state; 
+    Meteor.call('apply-command', canvas, this.getSelectedLayer(), command, params, (err, result) => {
       if(currentCommandHistory < commandHistory.length-1) {
         commandHistory.splice(currentCommandHistory+1, commandHistory.length-1);
       }
+      const { layers, params } = result;
       const newCommandHistory = {
        command: `${command}(${params.map(param => `${param}`)})`,
-       file,
+       layers,
       }
       commandHistory.push(newCommandHistory);
-      this.setState({...initialState, file, commandHistory, currentCommandHistory: commandHistory.length-1});
-      this.updateImageData();
+      this.setState({ layers, commandHistory, currentCommandHistory: commandHistory.length-1, selection: initialState.selection });
+      this.setState({selection: {
+        originX: 0,
+        originY: 0,
+        width: 0,
+        height: 0,
+      }})
     });
   }
 
@@ -84,8 +92,7 @@ class App extends Component {
     if(currentCommandHistory > 0) {
       const previousCommandHistoryIndex = currentCommandHistory - 1;
       const previousCommandHistory = commandHistory[previousCommandHistoryIndex];
-      this.setState({file: previousCommandHistory.file, currentCommandHistory: previousCommandHistoryIndex});
-      this.updateImageData(previousCommandHistory.file);
+      this.setState({layers: previousCommandHistory.layers, currentCommandHistory: previousCommandHistoryIndex});
     }
   }
 
@@ -94,8 +101,7 @@ class App extends Component {
     if(currentCommandHistory < (commandHistory.length-1)) {
       const nextCommandHistoryIndex = currentCommandHistory + 1;
       const nextCommandHistory = commandHistory[nextCommandHistoryIndex];
-      this.setState({file: nextCommandHistory.file, currentCommandHistory: nextCommandHistoryIndex});
-      this.updateImageData(nextCommandHistory.file);
+      this.setState({layers: nextCommandHistory.layers, currentCommandHistory: nextCommandHistoryIndex});
     }
   }
 
@@ -106,16 +112,16 @@ class App extends Component {
     });
   }
 
-  setImageDimensions = (img) => {
-    const imageDimensions = {
-        height:img.offsetHeight,
-        width:img.offsetWidth
+  setCanvas = (img) => {
+    const canvas = {
+        height: img.offsetHeight,
+        width: img.offsetWidth
     }
-    this.setState({imageDimensions});
+    this.setState({canvas});
   }
 
   setStateVariable = (variable, param = null, value) => {
-      const { imageData } = this.state;
+      const { canvas } = this.state;
       const stateVariable  = this.state[variable];
       if(stateVariable) {
         if(param) {
@@ -126,12 +132,11 @@ class App extends Component {
       }
       switch (variable) {
         case "selection":
-            const isValidSelection = validateSelection(stateVariable, imageData);
+            const isValidSelection = validateSelection(canvas, stateVariable);
             if(!isValidSelection) {
               return false;
             }
           break;
-      
         default:
           break;
       }
@@ -141,39 +146,40 @@ class App extends Component {
 
   render() {
     const { 
-      file, 
+      layers, 
       commandHistory, 
       currentCommandHistory, 
-      imageData, 
       selection, 
-      imageDimensions, 
+      canvas, 
       shouldRerender } = this.state; 
+    
+
+    const selectedLayer = this.getSelectedLayer();
     return <div className="wrapper">
             <div className="editor">
               <Editor 
-                file={file}
+                file={selectedLayer}
                 sendCommand={this.sendCommand} 
                 commandHistory={commandHistory} 
                 currentCommandHistory={currentCommandHistory}
                 next={this.next}
                 previous={this.previous}
                 clear={this.clear}
-                imageData={imageData}
-                setStateVariable={this.setStateVariable}/>
+                setStateVariable={this.setStateVariable}
+                canvas={canvas}/>
             </div>
             <div className="viewer">
-              {!file 
-              ? <UploadFile setFile={this.setFile}/> 
+              {_.isEmpty(layers) 
+              ? <UploadFile uploadFile={this.uploadFile}/> 
               : !shouldRerender 
-              ? <div className="image-container">
-                  <img 
-                  src={`/images/${file}`} 
-                  className="image" 
-                  onLoad={(img) => this.setImageDimensions(img.target)}/> 
-                  {imageData && imageDimensions && selection && <Selection selection={selection} imageData={imageData} imageDimensions={imageDimensions}/>}
+              ? <div className="canvas" style={{width: canvas.width, height: canvas.height}}>
+                  <div className="image-container">
+                    <Layers layers={layers} setCanvas={this.setCanvas}/>
+                    {selectedLayer && <Selection selection={selection} selectedLayer={selectedLayer} canvas={canvas}/>}
+                  </div>
                 </div>
                 : null}
-              {imageData && <Dimensions imageData={imageData} imageDimensions={imageDimensions} />}
+              {canvas && <Dimensions canvas={canvas}/>}
             </div>
            </div>
   }

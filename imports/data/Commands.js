@@ -1,15 +1,15 @@
 import { BOOLEAN, RANGE, SELECT } from '../data/CommandTypes';
 import { RESIZE_OPTIONS } from '../helpers/jimp';
 
-export default COMMANDS = (imageData) => [
+export default COMMANDS = (canvas) => [
     {
       name: "crop",
       description: "Crop to the given region",
       params: [
-        { name: "originX", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: imageData && imageData.dimensions && imageData.dimensions.width, step: 1 }, 
-        { name: "originY", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: imageData && imageData.dimensions && imageData.dimensions.height, step: 1 }, 
-        { name: "width", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: imageData && imageData.dimensions && imageData.dimensions.width, step: 1 }, 
-        { name: "height", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: imageData && imageData.dimensions && imageData.dimensions.height, step: 1 },
+        { name: "originX", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: canvas && canvas.width, step: 1 }, 
+        { name: "originY", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: canvas && canvas.height, step: 1 }, 
+        { name: "width", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: canvas && canvas.width, step: 1 }, 
+        { name: "height", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: canvas && canvas.height, step: 1 },
       ]
     },
     {

@@ -69,11 +69,15 @@ body {
     justify-content: center;
     background-color: black;    
 
+    .canvas {
+        margin: 20px;
+        background-color: #191919;
+    }
+
     .image-container {
         position: relative;
         display: flex;
         justify-content: center;
-        max-width: 90%;
         .image {
             max-width: 100%;
         }

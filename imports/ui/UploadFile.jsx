@@ -7,11 +7,11 @@ export default class UploadFile extends Component {
   }
 
   onChangeHandler = (event) => {
-    const { setFile } = this.props;
+    const { uploadFile } = this.props;
     const file = event.currentTarget.files[0];
     const reader = new FileReader();
     reader.onload = () => {
-      setFile(file.name, reader.result);
+      uploadFile(file.name, reader.result);
     };
     reader.readAsBinaryString(file);
   } 

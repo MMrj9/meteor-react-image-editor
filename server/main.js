@@ -2,17 +2,25 @@ import { Meteor } from 'meteor/meteor';
 import fs from "fs";
 import path from "path";
 import Jimp from "jimp";
+import _ from "underscore";
 
 import "./ImagesServer";
+import { scaleSelectionToRealDimensions } from "../imports/helpers/selection";
 
 const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#images';
 
-let imageData = {
-  dimensions: {
-    width: null,
-    height: null
+/*
+* 
+ {
+  file: null
+  imageData: {
+    dimensions: {
+      width: null,
+      height: null
+    }
   }
-}
+*/
+let layers = []
 
 Meteor.startup(function() {
   //Delete all files from image directory
@@ -20,11 +28,20 @@ Meteor.startup(function() {
 });
 
 Meteor.methods({
-  'file-upload': (fileName, fileData) => {
+  'file-upload': async (fileName, fileData) => {
     try {
       fs.writeFileSync(`${IMAGE_DIR_PATH}/${fileName}`, fileData, 'binary');
-      updateImageDimensions(fileName);
-      return fileName;
+      const imageData = await getImageData(fileName);
+      const newLayer = {
+        file: fileName,
+        imageData: {
+          width: imageData.width,
+          height: imageData.height,
+        }
+      };
+      layers = [];
+      layers.push(newLayer);
+      return layers;
     } catch(e) {
       console.log(e);
       return null;
@@ -33,21 +50,30 @@ Meteor.methods({
   'get-file-data': async (fileName) => {
     if(fileName) {
       //Updatet current image data
-      await updateImageDimensions(fileName);
+      await getImageData(fileName);
     } 
     return imageData;
   },
   'delete-all-files': () => {
     deleteAllFiles();
   },
-  'apply-command': async (fileName, command, params) => {
+  'apply-command': async (canvas, layer, command, params) => {
     const timestamp = (new Date()).getTime();
+    const fileName = layer.file;
     const newFileName = await Jimp.read(`${IMAGE_DIR_PATH}/${fileName}`)
     .then(img => {
       const newFileName= `${timestamp}${fileName}`;
       switch (command) {
         case "crop":
-          img.crop(params[0], params[1], params[2], params[3]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          const selection = {
+            originX: params[0],
+            originY: params[1],
+            width: params[2],
+            height: params[3],
+          }
+          const scaledSelection = scaleSelectionToRealDimensions(canvas, layer.imageData, selection);
+          img.crop(scaledSelection.originX, scaledSelection.originY, scaledSelection.width, scaledSelection.height).write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          params = [scaledSelection.originX, scaledSelection.originY, scaledSelection.width, scaledSelection.height];
           break
         case "flip":
           img.flip(params[0], params[1]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
@@ -90,25 +116,35 @@ Meteor.methods({
     .catch(err => {
       console.error(err);
     });
-    updateImageDimensions(newFileName);
-    return newFileName;
+    const imageData = await getImageData(newFileName);
+    const newLayer = {
+      file: newFileName,
+      imageData: {
+        width: imageData.width,
+        height: imageData.height,
+      }
+    }
+    _.extend(_.findWhere(layers, { file: fileName }), newLayer);
+    return {layers,params};
   },
 });
 
 
-const updateImageDimensions = (fileName) => {
-    Jimp.read(`${IMAGE_DIR_PATH}/${fileName}`)
+const getImageData = async (fileName) => {
+    const imageData = await Jimp.read(`${IMAGE_DIR_PATH}/${fileName}`)
     .then(img => {
-      imageData.dimensions.width = img.bitmap.width;
-      imageData.dimensions.height = img.bitmap.height;
-      imageData.dimensions.originX = 0;
-      imageData.dimensions.originY = 0;
+      const imageData = {};
+      imageData.width = img.bitmap.width;
+      imageData.height = img.bitmap.height;
+      imageData.originX = 0;
+      imageData.originY = 0;
       return imageData;
     })
     .catch(err => {
       console.error(err);
       return null;
     });
+    return imageData;
 }
 
 const deleteAllFiles = () => {
