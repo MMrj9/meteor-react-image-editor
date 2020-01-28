@@ -1,50 +1,95 @@
 import React, { Component } from 'react';
+import _ from "underscore";
+import Snackbar from '@material-ui/core/Snackbar';
+
+import Alert from './primitives/Alert';
 import UploadFile from './UploadFile.jsx';
 import Editor from './Editor.jsx';
 import Dimensions from './Dimensions.jsx';
+import Layers from './Layers.jsx';
+import Selection from './Selection.jsx';
+import { validateSelection } from '../helpers/selection';
+
 
 const initialState = {
-  file : null,
+  layers : [],
+  selectedLayer: null,
   commandHistory: [],
   currentCommandHistory: null,
-  imageData: null
+  selection: {
+    originX: 0,
+    originY: 0,
+    width: 0,
+    height: 0,
+  },
+  canvas: {
+    width: null,
+    height: null,
+  },
+  shouldRerender: false,
+  alert: null 
 }
 
 class App extends Component {
   state = initialState;
 
-  setFile = (fileName, fileData) => {
-    Meteor.call('file-upload', fileName, fileData, (err, file) => {
+  getSelectedLayer = () => {
+    const { layers, selectedLayer } = this.state; 
+    return layers[selectedLayer];
+  }
+
+  handleResize = () => {
+    const { layers } = this.state; 
+    if(!_.isEmpty(layers)) {
+      this.setState({shouldRerender: true});
+    }
+  }
+
+  componentDidMount() {
+    window.addEventListener('resize', this.handleResize)
+  }
+
+  componentDidUpdate() {
+    const { shouldRerender } = this.state; 
+    if(shouldRerender) {
+      this.setState({shouldRerender: false});
+    }
+  }
+
+  uploadFile = (fileName, fileData) => {
+    Meteor.call('file-upload', fileName, fileData, (err, layers) => {
         const commandHistory = [{
-          command: `fileUpload()`,
-          file,
+          command: `fileUpload(${fileName})`,
+          layers,
         }]
         const currentCommandHistory = 0;
-        console.log(file);
-        this.setState({file, commandHistory, currentCommandHistory});
-        this.updateImageData();
+        const selectedLayer = 0;
+        this.setState({layers, commandHistory, currentCommandHistory, selectedLayer });
     });
   }
 
-  updateImageData = () => {
-    Meteor.call('get-file-data', (err, imageData) => {
-      this.setState({ imageData });
-    })
-  }
-
   sendCommand = (command, params) => {
-    const { file, commandHistory, currentCommandHistory } = this.state; 
-    Meteor.call('apply-command', file, command, params, (err, file) => {
+    const { commandHistory, currentCommandHistory, canvas } = this.state; 
+    Meteor.call('apply-command', canvas, this.getSelectedLayer(), command, params, (err, result) => {
+      if(err) {
+        this.setAlert(err.reason, "error");
+      }
       if(currentCommandHistory < commandHistory.length-1) {
         commandHistory.splice(currentCommandHistory+1, commandHistory.length-1);
       }
+      const { layers, params } = result;
       const newCommandHistory = {
        command: `${command}(${params.map(param => `${param}`)})`,
-       file,
+       layers,
       }
       commandHistory.push(newCommandHistory);
-      this.setState({file, commandHistory, currentCommandHistory: commandHistory.length-1});
-      this.updateImageData();
+      this.setState({ layers, commandHistory, currentCommandHistory: commandHistory.length-1, selection: initialState.selection });
+      this.setState({selection: {
+        originX: 0,
+        originY: 0,
+        width: 0,
+        height: 0,
+      }})
     });
   }
 
@@ -53,8 +98,7 @@ class App extends Component {
     if(currentCommandHistory > 0) {
       const previousCommandHistoryIndex = currentCommandHistory - 1;
       const previousCommandHistory = commandHistory[previousCommandHistoryIndex];
-      this.setState({file: previousCommandHistory.file, currentCommandHistory: previousCommandHistoryIndex});
-      this.updateImageData(previousCommandHistory.file);
+      this.setState({canvas: initialState.canvas, layers: previousCommandHistory.layers, currentCommandHistory: previousCommandHistoryIndex});
     }
   }
 
@@ -63,8 +107,7 @@ class App extends Component {
     if(currentCommandHistory < (commandHistory.length-1)) {
       const nextCommandHistoryIndex = currentCommandHistory + 1;
       const nextCommandHistory = commandHistory[nextCommandHistoryIndex];
-      this.setState({file: nextCommandHistory.file, currentCommandHistory: nextCommandHistoryIndex});
-      this.updateImageData(previousCommandHistory.file);
+      this.setState({canvas: initialState.canvas, layers: nextCommandHistory.layers, currentCommandHistory: nextCommandHistoryIndex});
     }
   }
 
@@ -75,23 +118,87 @@ class App extends Component {
     });
   }
 
+  setCanvas = (img) => {
+      const canvas = {
+          width: img.offsetWidth,
+          height: img.offsetHeight
+      }
+      this.setState({canvas});
+  }
+
+  setStateVariable = (variable, param = null, value) => {
+      const { canvas } = this.state;
+      const stateVariable  = this.state[variable];
+      if(stateVariable) {
+        if(param) {
+          stateVariable[param] = value;
+        } else {
+          stateVariable = value;
+        }
+      }
+      switch (variable) {
+        case "selection":
+            const isValidSelection = validateSelection(canvas, stateVariable);
+            if(!isValidSelection) {
+              return false;
+            }
+          break;
+        default:
+          break;
+      }
+      this.setState({[stateVariable]: stateVariable});
+      return true;
+  }
+
+  setAlert = (message, severity) => {
+    const alert = {message, severity};
+    this.setState({alert});
+  }
+
   render() {
-    const { file, commandHistory, currentCommandHistory, imageData } = this.state; 
+    const { 
+      layers, 
+      commandHistory, 
+      currentCommandHistory, 
+      selection, 
+      canvas, 
+      shouldRerender,
+      alert } = this.state; 
+    
+
+    const selectedLayer = this.getSelectedLayer();
     return <div className="wrapper">
             <div className="editor">
               <Editor 
-                file={file}
+                file={selectedLayer}
                 sendCommand={this.sendCommand} 
                 commandHistory={commandHistory} 
                 currentCommandHistory={currentCommandHistory}
                 next={this.next}
                 previous={this.previous}
-                clear={this.clear}/>
+                clear={this.clear}
+                setStateVariable={this.setStateVariable}
+                canvas={canvas}/>
             </div>
             <div className="viewer">
-              {!file ? <UploadFile setFile={this.setFile}/> : <img src={`/images/${file}`} className="image"/>}
-              {imageData && <Dimensions imageData={imageData}/>}
+              {_.isEmpty(layers) 
+              ? <UploadFile uploadFile={this.uploadFile}/> 
+              : !shouldRerender 
+              ? <div className="canvas" style={{width: canvas.width, height: canvas.height}}>
+                  <div className="image-container">
+                    <Layers layers={layers} setCanvas={this.setCanvas}/>
+                    {selectedLayer && <Selection selection={selection} selectedLayer={selectedLayer} canvas={canvas}/>}
+                  </div>
+                </div>
+                : null}
+              {canvas && <Dimensions canvas={canvas}/>}
             </div>
+            { alert
+            ? <Snackbar open={true} autoHideDuration={6000} onClose={this.setState({alert: null})}>
+               <Alert onClose={this.setState({alert: null})} severity={alert.severity}>
+                {alert.message}
+               </Alert>
+              </Snackbar> : null }
            </div>
   }
 }

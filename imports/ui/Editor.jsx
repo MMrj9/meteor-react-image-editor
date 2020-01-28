@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import  _  from 'underscore';
 import Button from '@material-ui/core/Button';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -26,15 +27,32 @@ export default class Editor extends Component {
     selectedCommand: null,
   }
 
+  UNSAFE_componentWillMount() {
+    this.delayedCallback = _.debounce( (param, value) => {
+      const { setStateVariable } = this.props;
+      if(param.updateParent) {
+        const result = setStateVariable(param.updateParent, param.name, value);
+        if(result) {
+          this.setState({ [param.name]: value });
+        } 
+      } else {
+        this.setState({ [param.name]: value });
+      }
+    }, 1);
+  }
+
   sendCommand = () => {
     const state = this.state;
     const { selectedCommand } = state;
     const { sendCommand } = this.props;
     const params = [];
+    const clearStateParams = {};
     selectedCommand.params.forEach(param => {
       params.push(state[param.name] || param.defaultValue);
+      clearStateParams[param.name] = param.defaultValue;
     });
     sendCommand(selectedCommand.name, params);
+    this.setState({...clearStateParams, selectedCommand: null});
   }
 
   _renderForm = () => {
@@ -84,8 +102,8 @@ export default class Editor extends Component {
   download = () => {
     const { file } = this.props;
     const a = document.createElement('a');
-    a.href =`/images/${file}`;
-    a.download = `/images/${file}`;
+    a.href =`/images/${file.file}`;
+    a.download = `/images/${file.file}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -103,7 +121,7 @@ export default class Editor extends Component {
                     <Checkbox 
                       checked={state[param.name] || param.defaultValue} 
                       value={param.name}
-                      onChange={(event) => this.handleParamChange(param.name, event.target.checked)} 
+                      onChange={(event) => this.handleParamChange(param, event.target.checked, event)} 
                     />}
                   />
         case RANGE:
@@ -119,7 +137,7 @@ export default class Editor extends Component {
                     max={param.max}
                     step={param.step}
                     value={state[param.name] || param.defaultValue}
-                    onChange={(event, value) => this.handleParamChange(param.name, value)} 
+                    onChange={(event, value) => this.handleParamChange(param, value, event)} 
                     />
                   </FormControl>
         case SELECT:
@@ -128,7 +146,7 @@ export default class Editor extends Component {
                     <Select
                       labelId={param.name}
                       value={state[param.name] || param.defaultValue}
-                      onChange={(event) => this.handleParamChange(param.name, event.target.value)}
+                      onChange={(event) => this.handleParamChange(param, event.target.value, event)}
                     >
                       {param.options.map((option) => {
                         return <MenuItem value={option.value}>{option.label}</MenuItem>
@@ -141,8 +159,8 @@ export default class Editor extends Component {
     });
   }
 
-  handleParamChange = (param, value) => {
-    this.setState({ [param]: value });
+  handleParamChange = (param, value, event) => {
+    this.delayedCallback(param, value);
   };
 
   handleCommandChange = ( newCommand ) => {
@@ -156,9 +174,10 @@ export default class Editor extends Component {
     this.setState({...clearParams, selectedCommand: newCommand});
   }
 
-  _renderCommandSelection = (newCommand) => {
+  _renderCommandSelection = () => {
+    const { canvas } = this.props;   
     return <Autocomplete
-            options={COMMANDS}
+            options={COMMANDS(canvas)}
             getOptionLabel={command => command.name}
             style={{ width: 250, marginLeft: "auto" }}
             renderInput={params => (
@@ -181,13 +200,13 @@ export default class Editor extends Component {
                 variant="contained"
                 color="primary"
                 startIcon={<ChevronLeft/>}
-                onClick={() => this.props.previous()}
+                onClick={() => previous()}
               >Previous</Button>
               <Button
                 variant="contained"
                 color="primary"
                 endIcon={<ChevronRight/>}
-                onClick={() => this.props.next()}
+                onClick={() => next()}
               >Next</Button>
             </div>
            </div>

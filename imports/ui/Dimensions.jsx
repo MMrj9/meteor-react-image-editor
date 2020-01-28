@@ -1,11 +1,12 @@
 import React from 'react';
 
 const Dimensions = (props) => {
-    const { imageData } = props;
-    const { width, height } = imageData.dimensions;
-    if(imageData && width && height) {
+    const { canvas } = props;
+    if( canvas &&
+        canvas.width && 
+        canvas.height) {
         return  <div className="dimensions">
-                    <span>{`${width} x ${height}`}</span>
+                    <span>{`${canvas.width} x ${canvas.height}`}</span>
                 </div>
     } else {
         return null;

@@ -1,11 +1,34 @@
 import { BOOLEAN, RANGE, SELECT } from '../data/CommandTypes';
-import { RESIZE_OPTIONS } from '../data/JimpHelpers';
+import { RESIZE_OPTIONS } from '../helpers/jimp';
 
-export default COMMANDS = [
+export default COMMANDS = (canvas) => [
+    {
+      name: "crop",
+      description: "Crop to the given region",
+      params: [
+        { name: "originX", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: canvas && canvas.width, step: 1 }, 
+        { name: "originY", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: canvas && canvas.height, step: 1 }, 
+        { name: "width", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: canvas && canvas.width, step: 1 }, 
+        { name: "height", type: RANGE, updateParent: "selection", defaultValue: 0, min: 0, max: canvas && canvas.height, step: 1 },
+      ]
+    },
     {
       name: "flip",
       description: "Flip the image horizontally or vertically",
       params: [{ name: "horizontal", type: BOOLEAN, defaultValue: false},{ name: "vertical", type: BOOLEAN, defaultValue: false}]
+    },
+    {
+      name: "rotate",
+      description: "Rotate the image clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.",
+      params: [
+        { name: "degress", type: RANGE, defaultValue: 0, min: 0, max: 360, step: 1 }, 
+        { name: "mode", type: SELECT, defaultValue: false, 
+          options: [
+            { value: false, label: "Don't Resize" }, 
+            { value: true, label: "Resize Default" },
+            ...RESIZE_OPTIONS
+        ]}
+      ]
     },
     {
       name: "brightness",
@@ -41,19 +64,6 @@ export default COMMANDS = [
       name: "sepia",
       description: "Apply a sepia wash to the image",
       params: []
-    },
-    {
-      name: "rotate",
-      description: "Rotate the image clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.",
-      params: [
-        { name: "degress", type: RANGE, defaultValue: 0, min: 0, max: 360, step: 1 }, 
-        { name: "mode", type: SELECT, defaultValue: false, 
-          options: [
-            { value: false, label: "Don't Resize" }, 
-            { value: true, label: "Resize Default" },
-            ...RESIZE_OPTIONS
-        ]}
-      ]
     },
     {
       name: "gaussian",
