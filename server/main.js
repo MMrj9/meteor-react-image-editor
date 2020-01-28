@@ -63,6 +63,9 @@ Meteor.methods({
     .then(img => {
       const newFileName= `${timestamp}${fileName}`;
       switch (command) {
+        case "autocrop":
+          img.autocrop().write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          break
         case "crop":
           const selection = {
             originX: params[0],
