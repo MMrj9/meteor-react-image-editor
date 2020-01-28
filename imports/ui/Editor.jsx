@@ -52,7 +52,7 @@ export default class Editor extends Component {
       clearStateParams[param.name] = param.defaultValue;
     });
     sendCommand(selectedCommand.name, params);
-    this.setState(clearStateParams);
+    this.setState({...clearStateParams, selectedCommand: null});
   }
 
   _renderForm = () => {

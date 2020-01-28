@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import _ from "underscore";
+import Snackbar from '@material-ui/core/Snackbar';
 
+import Alert from './primitives/Alert';
 import UploadFile from './UploadFile.jsx';
 import Editor from './Editor.jsx';
 import Dimensions from './Dimensions.jsx';
@@ -24,7 +26,8 @@ const initialState = {
     width: null,
     height: null,
   },
-  shouldRerender: false
+  shouldRerender: false,
+  alert: null 
 }
 
 class App extends Component {
@@ -68,6 +71,9 @@ class App extends Component {
   sendCommand = (command, params) => {
     const { commandHistory, currentCommandHistory, canvas } = this.state; 
     Meteor.call('apply-command', canvas, this.getSelectedLayer(), command, params, (err, result) => {
+      if(err) {
+        this.setAlert(err.reason, "error");
+      }
       if(currentCommandHistory < commandHistory.length-1) {
         commandHistory.splice(currentCommandHistory+1, commandHistory.length-1);
       }
@@ -92,7 +98,7 @@ class App extends Component {
     if(currentCommandHistory > 0) {
       const previousCommandHistoryIndex = currentCommandHistory - 1;
       const previousCommandHistory = commandHistory[previousCommandHistoryIndex];
-      this.setState({layers: previousCommandHistory.layers, currentCommandHistory: previousCommandHistoryIndex});
+      this.setState({canvas: initialState.canvas, layers: previousCommandHistory.layers, currentCommandHistory: previousCommandHistoryIndex});
     }
   }
 
@@ -101,7 +107,7 @@ class App extends Component {
     if(currentCommandHistory < (commandHistory.length-1)) {
       const nextCommandHistoryIndex = currentCommandHistory + 1;
       const nextCommandHistory = commandHistory[nextCommandHistoryIndex];
-      this.setState({layers: nextCommandHistory.layers, currentCommandHistory: nextCommandHistoryIndex});
+      this.setState({canvas: initialState.canvas, layers: nextCommandHistory.layers, currentCommandHistory: nextCommandHistoryIndex});
     }
   }
 
@@ -113,11 +119,11 @@ class App extends Component {
   }
 
   setCanvas = (img) => {
-    const canvas = {
-        height: img.offsetHeight,
-        width: img.offsetWidth
-    }
-    this.setState({canvas});
+      const canvas = {
+          width: img.offsetWidth,
+          height: img.offsetHeight
+      }
+      this.setState({canvas});
   }
 
   setStateVariable = (variable, param = null, value) => {
@@ -144,6 +150,11 @@ class App extends Component {
       return true;
   }
 
+  setAlert = (message, severity) => {
+    const alert = {message, severity};
+    this.setState({alert});
+  }
+
   render() {
     const { 
       layers, 
@@ -151,7 +162,8 @@ class App extends Component {
       currentCommandHistory, 
       selection, 
       canvas, 
-      shouldRerender } = this.state; 
+      shouldRerender,
+      alert } = this.state; 
     
 
     const selectedLayer = this.getSelectedLayer();
@@ -181,6 +193,12 @@ class App extends Component {
                 : null}
               {canvas && <Dimensions canvas={canvas}/>}
             </div>
+            { alert
+            ? <Snackbar open={true} autoHideDuration={6000} onClose={this.setState({alert: null})}>
+               <Alert onClose={this.setState({alert: null})} severity={alert.severity}>
+                {alert.message}
+               </Alert>
+              </Snackbar> : null }
            </div>
   }
 }

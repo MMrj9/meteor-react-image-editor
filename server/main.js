@@ -42,9 +42,8 @@ Meteor.methods({
       layers = [];
       layers.push(newLayer);
       return layers;
-    } catch(e) {
-      console.log(e);
-      return null;
+    } catch(err) {
+      throw(err);
     }
   },
   'get-file-data': async (fileName) => {
@@ -114,17 +113,27 @@ Meteor.methods({
       return newFileName;
     })
     .catch(err => {
-      console.error(err);
+      throw(err);
     });
-    const imageData = await getImageData(newFileName);
-    const newLayer = {
-      file: newFileName,
-      imageData: {
-        width: imageData.width,
-        height: imageData.height,
+    try {
+      //The is a delay between JIMP write funcion finishing and the file being created
+      let isFileCreated = false;
+      while(!isFileCreated) {
+        isFileCreated = fs.existsSync(`${IMAGE_DIR_PATH}/${newFileName}`);
       }
+
+      const imageData = await getImageData(newFileName);
+      const newLayer = {
+        file: newFileName,
+        imageData: {
+          width: imageData.width,
+          height: imageData.height,
+        }
+      }
+      _.extend(_.findWhere(layers, { file: fileName }), newLayer);
+    } catch(err) {
+      throw(err);
     }
-    _.extend(_.findWhere(layers, { file: fileName }), newLayer);
     return {layers,params};
   },
 });
@@ -141,8 +150,7 @@ const getImageData = async (fileName) => {
       return imageData;
     })
     .catch(err => {
-      console.error(err);
-      return null;
+      throw err;
     });
     return imageData;
 }

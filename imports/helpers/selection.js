@@ -1,12 +1,13 @@
 const scaleSelectionToRealDimensions = (canvas, imageData, selection) => {
     const scaleX = imageData.width/canvas.width;
     const scaleY = imageData.height/canvas.height;
-    return {
-        originX: Math.round(selection.originX * scaleX),
-        originY: Math.round(selection.originY * scaleY),
-        width: Math.round(selection.width * scaleX),
-        height: Math.round(selection.height * scaleY)
-    }
+    const originX = Math.round(selection.originX * scaleX);
+    const originY = Math.round(selection.originY * scaleY);
+    let width = Math.round(selection.width * scaleX);
+    let height = Math.round(selection.height * scaleY);
+    width = originX + width > imageData.originX + imageData.width ? imageData.originX + imageData.width : width;
+    height = originY + height > imageData.originY + imageData.height ? imageData.originY + imageData.height : height;
+    return {originX, originY, width, height};
 }
 
 const validateSelection = (canvas, selection) => {

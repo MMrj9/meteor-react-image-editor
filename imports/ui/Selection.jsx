@@ -2,7 +2,6 @@ import React from 'react';
 
 const Selection = (props) => {
     const { selection, canvas } = props;
-    console.log("selection", selection);
     if( selection && 
         !isNaN(selection.originX) &&
         !isNaN(selection.originY) &&
