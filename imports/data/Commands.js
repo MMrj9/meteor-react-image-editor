@@ -3,6 +3,11 @@ import { RESIZE_OPTIONS } from '../helpers/jimp';
 
 export default COMMANDS = (canvas) => [
     {
+      name: "autocrop",
+      description: "Automatically crop same-color borders from image (if any).",
+      params: []
+    },
+    {
       name: "crop",
       description: "Crop to the given region",
       params: [
