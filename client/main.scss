@@ -130,7 +130,10 @@ body {
             .actions {
                 position: absolute;
                 bottom: 10px;
-                right: 10px;            
+                right: 10px;  
+                .disabled {
+                    color: rgba(0, 0, 0, 0.26);
+                }          
             }
         }
 

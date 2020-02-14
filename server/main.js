@@ -96,7 +96,7 @@ Meteor.methods({
   'apply-command': async (canvas, layer, command, params) => {
     const timestamp = (new Date()).getTime();
     const fileName = layer.file;
-    let finalFileName, finalXOrigin, finalYOrigin;
+    let finalFileName, finalXOrigin, finalYOrigin, isDelete;
     let addNewLayer = false;
     finalFileName = await Jimp.read(`${IMAGE_DIR_PATH}/${fileName}`)
     .then(img => {
@@ -160,6 +160,9 @@ Meteor.methods({
           finalYOrigin = params[1];
           newFileName = layer.file;
           break;
+        case "delete":
+          isDelete = true;
+          break;
         default:
           break;
       }
@@ -170,6 +173,13 @@ Meteor.methods({
     });
 
     try {
+      if(isDelete) {
+        layers = _.without(layers, _.findWhere(layers, {
+          file: fileName
+        }));
+        return {layers, params};
+      }
+
       //The is a delay between JIMP write funcion finishing and the file being created
       let isFileCreated = false;
       while(!isFileCreated) {

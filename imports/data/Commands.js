@@ -90,9 +90,14 @@ const COMMANDS = (canvas) => [
 
   const MOVE_COMMAND = {
     name: "move",
-    description: "Moves a layer to the give (x,y) origin",
+    description: "Moves the selected layer to the give (x,y) origin",
     params: [{ name: "x", type: RANGE, defaultValue: 0}],
     params: [{ name: "y", type: RANGE, defaultValue: 0}],
   }
 
-  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND }
+  const DELETE_COMMAND = {
+    name: "delete",
+    description: "Deletes the selected layer"
+  }
+
+  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND, DELETE_COMMAND }

@@ -75,7 +75,7 @@ class App extends Component {
   }
 
   sendCommand = (command, params) => {
-    const { commandHistory, currentCommandHistory, canvas } = this.state; 
+    const { commandHistory, currentCommandHistory, canvas, layers, selectedLayerIndex } = this.state; 
     Meteor.call('apply-command', canvas, this.getSelectedLayer(), command, params, (err, result) => {
       if(err) {
         this.setAlert(err.reason, "error");
@@ -83,13 +83,15 @@ class App extends Component {
       if(currentCommandHistory < commandHistory.length-1) {
         commandHistory.splice(currentCommandHistory+1, commandHistory.length-1);
       }
-      const { layers, params } = result;
+      const resultLayers = result.layers;
+      const resultParams = result.params;
       const newCommandHistory = {
-       command: `${command.name}(${params.map(param => `${param}`)})`,
-       layers,
+       command: `${command.name}(${resultParams.map(param => `${param}`)})`,
+       layers: resultLayers,
       }
       commandHistory.push(newCommandHistory);
-      this.setState({ layers, commandHistory, currentCommandHistory: commandHistory.length-1, selection: initialState.selection });
+      const newSelectedLayerIndex = resultLayers.length < layers.length ? 0 : selectedLayerIndex;
+      this.setState({ layers: resultLayers, commandHistory, currentCommandHistory: commandHistory.length-1, selection: initialState.selection, selectedLayerIndex: newSelectedLayerIndex});
       this.setState({selection: {
         originX: 0,
         originY: 0,
@@ -204,8 +206,9 @@ class App extends Component {
                 <LayerSelection 
                 layers={layers} 
                 selectedLayerIndex={selectedLayerIndex}
-                setSelectedLayer={(layerIndex) => this.setState({selectedLayerIndex: layerIndex})} 
-                openMoveLayerModal={() => this.setState({isMoveLayerModalOpen: true})}/>
+                setSelectedLayerIndex={(index) => this.setState({selectedLayerIndex: index})} 
+                openMoveLayerModal={() => this.setState({isMoveLayerModalOpen: true})}
+                sendCommand={this.sendCommand}/>
               </div> : null }
               {canvas && <Dimensions canvas={canvas} mainLayer={layers[0]}/>}
             </div>
