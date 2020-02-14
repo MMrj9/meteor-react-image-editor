@@ -78,9 +78,7 @@ Meteor.methods({
       data.forEach(async (d, index) => {
         if(index === 0) return;
         const secondaryLayer = layers[index];
-        const scale = canvas.width / secondaryLayer.imageData.width;
-        data[index].resize(secondaryLayer.imageData.width*scale, secondaryLayer.imageData.height*scale);
-        data[0].composite(data[index], secondaryLayer.position.x - (secondaryLayer.imageData.width*scale/2), secondaryLayer.position.y - (secondaryLayer.imageData.height*scale/2));
+        data[0].composite(data[index], secondaryLayer.position.x, secondaryLayer.position.y);
       })
     
       const timestamp = (new Date()).getTime();
@@ -162,6 +160,8 @@ Meteor.methods({
           break;
         case "delete":
           isDelete = true;
+        case "resize":
+          img.resize(params[0], params[1]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break;
         default:
           break;

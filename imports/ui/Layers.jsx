@@ -19,6 +19,9 @@ const Layers = (props) => {
                     key={layer.file}
                     src={`/images/${layer.file}`} 
                     className="image" 
+                    style={{
+                        width: index > 0 ? scaleX(layers[0], canvas ,layer.imageData.width) : "100%",
+                    }}
                     onLoad={(img) => index===0 && setCanvas(img.target)}/> 
                 </div>
     });

@@ -10,6 +10,7 @@ import Layers from './Layers.jsx';
 import Selection from './Selection.jsx';
 import LayerSelection from './LayerSelection.jsx';
 import { MoveLayerModal } from './components';
+import { ResizeLayerModal } from './components';
 import { validateSelection } from '../helpers/selection';
 
 
@@ -31,6 +32,7 @@ const initialState = {
   shouldRerender: false,
   alert: null,
   isMoveLayerModalOpen: false,
+  isResizeLayerModalOpen: false,
 }
 
 class App extends Component {
@@ -174,7 +176,8 @@ class App extends Component {
       canvas, 
       shouldRerender,
       alert,
-      isMoveLayerModalOpen } = this.state; 
+      isMoveLayerModalOpen,
+      isResizeLayerModalOpen } = this.state; 
 
     const selectedLayer = this.getSelectedLayer();
     return <div className="wrapper">
@@ -208,6 +211,7 @@ class App extends Component {
                 selectedLayerIndex={selectedLayerIndex}
                 setSelectedLayerIndex={(index) => this.setState({selectedLayerIndex: index})} 
                 openMoveLayerModal={() => this.setState({isMoveLayerModalOpen: true})}
+                openResizeLayerModal={() => this.setState({isResizeLayerModalOpen: true})}
                 sendCommand={this.sendCommand}/>
               </div> : null }
               {canvas && <Dimensions canvas={canvas} mainLayer={layers[0]}/>}
@@ -222,6 +226,14 @@ class App extends Component {
             <MoveLayerModal 
               isOpen={isMoveLayerModalOpen}
               close={() => this.setState({isMoveLayerModalOpen: false})} 
+              canvas={canvas} 
+              layer={selectedLayer}
+              mainLayer={layers[0]}
+              sendCommand={this.sendCommand}/> : null}
+            { isResizeLayerModalOpen ? 
+            <ResizeLayerModal 
+              isOpen={isResizeLayerModalOpen}
+              close={() => this.setState({isResizeLayerModalOpen: false})} 
               canvas={canvas} 
               layer={selectedLayer}
               mainLayer={layers[0]}

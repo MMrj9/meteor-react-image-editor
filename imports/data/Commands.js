@@ -91,8 +91,7 @@ const COMMANDS = (canvas) => [
   const MOVE_COMMAND = {
     name: "move",
     description: "Moves the selected layer to the give (x,y) origin",
-    params: [{ name: "x", type: RANGE, defaultValue: 0}],
-    params: [{ name: "y", type: RANGE, defaultValue: 0}],
+    params: [{ name: "x", type: RANGE, defaultValue: 0},{ name: "y", type: RANGE, defaultValue: 0}],
   }
 
   const DELETE_COMMAND = {
@@ -100,4 +99,10 @@ const COMMANDS = (canvas) => [
     description: "Deletes the selected layer"
   }
 
-  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND, DELETE_COMMAND }
+  const RESIZE_COMMAND = {
+    name: "resize",
+    description: "Resizes the selected layer to the give dimensions",
+    params: [{ name: "width", type: RANGE, defaultValue: 0}, { name: "heigh", type: RANGE, defaultValue: 0}],
+  }
+
+  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND, DELETE_COMMAND, RESIZE_COMMAND }
