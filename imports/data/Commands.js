@@ -1,7 +1,7 @@
-import { BOOLEAN, RANGE, SELECT } from '../data/CommandTypes';
+import { BOOLEAN, RANGE, SELECT, STRING } from './ParamTypes';
 import { RESIZE_OPTIONS } from '../helpers/jimp';
 
-export default COMMANDS = (canvas) => [
+const COMMANDS = (canvas) => [
     {
       name: "autocrop",
       description: "Automatically crop same-color borders from image (if any).",
@@ -81,3 +81,18 @@ export default COMMANDS = (canvas) => [
       params: [{ name: "value", type: RANGE, defaultValue: 1, min: 1, max: 100, step: 1 }]
     },
   ]
+
+  const ADD_TEXT_COMMAND = {
+    name: "add_text",
+    description: "Adds a text layer with the selected properties",
+    params: [{ name: "text", type: STRING, defaultValue: ""}],
+  }
+
+  const MOVE_COMMAND = {
+    name: "move",
+    description: "Moves a layer to the give (x,y) origin",
+    params: [{ name: "x", type: RANGE, defaultValue: 0}],
+    params: [{ name: "y", type: RANGE, defaultValue: 0}],
+  }
+
+  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND }
