@@ -1,7 +1,12 @@
-import { BOOLEAN, RANGE, SELECT } from '../data/CommandTypes';
+import { BOOLEAN, RANGE, SELECT, STRING } from './ParamTypes';
 import { RESIZE_OPTIONS } from '../helpers/jimp';
 
-export default COMMANDS = (canvas) => [
+const COMMANDS = (canvas) => [
+    {
+      name: "autocrop",
+      description: "Automatically crop same-color borders from image (if any).",
+      params: []
+    },
     {
       name: "crop",
       description: "Crop to the given region",
@@ -76,3 +81,28 @@ export default COMMANDS = (canvas) => [
       params: [{ name: "value", type: RANGE, defaultValue: 1, min: 1, max: 100, step: 1 }]
     },
   ]
+
+  const ADD_TEXT_COMMAND = {
+    name: "add_text",
+    description: "Adds a text layer with the selected properties",
+    params: [{ name: "text", type: STRING, defaultValue: ""}],
+  }
+
+  const MOVE_COMMAND = {
+    name: "move",
+    description: "Moves the selected layer to the give (x,y) origin",
+    params: [{ name: "x", type: RANGE, defaultValue: 0},{ name: "y", type: RANGE, defaultValue: 0}],
+  }
+
+  const DELETE_COMMAND = {
+    name: "delete",
+    description: "Deletes the selected layer"
+  }
+
+  const RESIZE_COMMAND = {
+    name: "resize",
+    description: "Resizes the selected layer to the give dimensions",
+    params: [{ name: "width", type: RANGE, defaultValue: 0}, { name: "heigh", type: RANGE, defaultValue: 0}],
+  }
+
+  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND, DELETE_COMMAND, RESIZE_COMMAND }

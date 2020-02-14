@@ -13,10 +13,12 @@
     "@material-ui/icons": "^4.5.1",
     "@material-ui/lab": "^4.0.0-alpha.39",
     "@material-ui/styles": "^4.8.2",
+    "fibers": "^4.0.2",
     "jimp": "^0.9.3",
     "meteor-node-stubs": "^1.0.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "text2png": "^2.3.0",
     "underscore": "^1.9.2"
   },
   "meteor": {

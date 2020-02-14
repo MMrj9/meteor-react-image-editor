@@ -42,11 +42,16 @@ body {
         }
         .history {
             .history-console {
+                flex: 1;
                 height: 100%;
                 margin-top: 20px;
                 padding: 5px 10px;
                 .test{
                     background-color: $yellow !important;
+                }
+                p {
+                    max-width: 100%;
+                    overflow: hidden;                
                 }
             }
             .history-buttons {
@@ -67,6 +72,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
     background-color: black;    
 
     .canvas {
@@ -78,6 +84,7 @@ body {
         position: relative;
         display: flex;
         justify-content: center;
+        align-items: center;
         .image {
             max-width: 100%;
         }
@@ -96,8 +103,71 @@ body {
         bottom: 10px;
         right: 10px;
     }
+
+    .layer-selection {
+        display: flex;
+        align-items: flex-end;
+        position: absolute;
+        bottom: 0;
+        left: 10px;
+        padding: 10px;
+        background-color: rgba(58,56,79,0.5);
+        .layer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 150px;
+            height: 150px;
+            padding: 10px;
+            cursor: pointer;
+            &.selected{
+                background-color: rgba(69,67,94,0.7);
+            }
+            .image {
+                max-width: 100%;
+            }
+            .actions {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;  
+                .disabled {
+                    color: rgba(0, 0, 0, 0.26);
+                }          
+            }
+        }
+
+        .expand, .collapse {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .expand {
+            padding: 10px;
+        }
+        .collapse {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+    }
 }
 
 .clickable {
     cursor: pointer;
+}
+
+.modal {
+    position: absolute;
+    background-color: $black;
+    padding: 20px;
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-actions {
+        margin-top: 20px;
+    }
 }

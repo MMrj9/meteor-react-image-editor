@@ -1,5 +1,6 @@
 const BOOLEAN = "BOOLEAN";
 const RANGE = "RANGE";
 const SELECT = "SELECT";
+const STRING = "STRING";
 
-export { BOOLEAN, RANGE, SELECT };
+export { BOOLEAN, RANGE, SELECT, STRING };

@@ -8,12 +8,15 @@ import Editor from './Editor.jsx';
 import Dimensions from './Dimensions.jsx';
 import Layers from './Layers.jsx';
 import Selection from './Selection.jsx';
+import LayerSelection from './LayerSelection.jsx';
+import { MoveLayerModal } from './components';
+import { ResizeLayerModal } from './components';
 import { validateSelection } from '../helpers/selection';
 
 
 const initialState = {
   layers : [],
-  selectedLayer: null,
+  selectedLayerIndex: null,
   commandHistory: [],
   currentCommandHistory: null,
   selection: {
@@ -27,15 +30,20 @@ const initialState = {
     height: null,
   },
   shouldRerender: false,
-  alert: null 
+  alert: null,
+  isMoveLayerModalOpen: false,
+  isResizeLayerModalOpen: false,
 }
 
 class App extends Component {
   state = initialState;
 
   getSelectedLayer = () => {
-    const { layers, selectedLayer } = this.state; 
-    return layers[selectedLayer];
+    const { layers, selectedLayerIndex } = this.state; 
+    if(!_.isEmpty(layers) && !isNaN(selectedLayerIndex)) {
+      return layers[selectedLayerIndex];
+    } 
+    return null;
   }
 
   handleResize = () => {
@@ -63,13 +71,13 @@ class App extends Component {
           layers,
         }]
         const currentCommandHistory = 0;
-        const selectedLayer = 0;
-        this.setState({layers, commandHistory, currentCommandHistory, selectedLayer });
+        const selectedLayerIndex = 0;
+        this.setState({layers, commandHistory, currentCommandHistory, selectedLayerIndex });
     });
   }
 
   sendCommand = (command, params) => {
-    const { commandHistory, currentCommandHistory, canvas } = this.state; 
+    const { commandHistory, currentCommandHistory, canvas, layers, selectedLayerIndex } = this.state; 
     Meteor.call('apply-command', canvas, this.getSelectedLayer(), command, params, (err, result) => {
       if(err) {
         this.setAlert(err.reason, "error");
@@ -77,13 +85,15 @@ class App extends Component {
       if(currentCommandHistory < commandHistory.length-1) {
         commandHistory.splice(currentCommandHistory+1, commandHistory.length-1);
       }
-      const { layers, params } = result;
+      const resultLayers = result.layers;
+      const resultParams = result.params;
       const newCommandHistory = {
-       command: `${command}(${params.map(param => `${param}`)})`,
-       layers,
+       command: `${command.name}(${resultParams.map(param => `${param}`)})`,
+       layers: resultLayers,
       }
       commandHistory.push(newCommandHistory);
-      this.setState({ layers, commandHistory, currentCommandHistory: commandHistory.length-1, selection: initialState.selection });
+      const newSelectedLayerIndex = resultLayers.length < layers.length ? 0 : selectedLayerIndex;
+      this.setState({ layers: resultLayers, commandHistory, currentCommandHistory: commandHistory.length-1, selection: initialState.selection, selectedLayerIndex: newSelectedLayerIndex});
       this.setState({selection: {
         originX: 0,
         originY: 0,
@@ -98,7 +108,7 @@ class App extends Component {
     if(currentCommandHistory > 0) {
       const previousCommandHistoryIndex = currentCommandHistory - 1;
       const previousCommandHistory = commandHistory[previousCommandHistoryIndex];
-      this.setState({canvas: initialState.canvas, layers: previousCommandHistory.layers, currentCommandHistory: previousCommandHistoryIndex});
+      this.setState({layers: previousCommandHistory.layers, currentCommandHistory: previousCommandHistoryIndex});
     }
   }
 
@@ -107,7 +117,7 @@ class App extends Component {
     if(currentCommandHistory < (commandHistory.length-1)) {
       const nextCommandHistoryIndex = currentCommandHistory + 1;
       const nextCommandHistory = commandHistory[nextCommandHistoryIndex];
-      this.setState({canvas: initialState.canvas, layers: nextCommandHistory.layers, currentCommandHistory: nextCommandHistoryIndex});
+      this.setState({layers: nextCommandHistory.layers, currentCommandHistory: nextCommandHistoryIndex});
     }
   }
 
@@ -154,17 +164,20 @@ class App extends Component {
     const alert = {message, severity};
     this.setState({alert});
   }
+  
 
   render() {
     const { 
       layers, 
+      selectedLayerIndex,
       commandHistory, 
       currentCommandHistory, 
       selection, 
       canvas, 
       shouldRerender,
-      alert } = this.state; 
-    
+      alert,
+      isMoveLayerModalOpen,
+      isResizeLayerModalOpen } = this.state; 
 
     const selectedLayer = this.getSelectedLayer();
     return <div className="wrapper">
@@ -186,19 +199,45 @@ class App extends Component {
               : !shouldRerender 
               ? <div className="canvas" style={{width: canvas.width, height: canvas.height}}>
                   <div className="image-container">
-                    <Layers layers={layers} setCanvas={this.setCanvas}/>
+                    <Layers layers={layers} canvas={canvas} setCanvas={this.setCanvas}/>
                     {selectedLayer && <Selection selection={selection} selectedLayer={selectedLayer} canvas={canvas}/>}
                   </div>
                 </div>
                 : null}
-              {canvas && <Dimensions canvas={canvas}/>}
+              {!_.isEmpty(layers) ?
+              <div className="layer-selection">
+                <LayerSelection 
+                layers={layers} 
+                selectedLayerIndex={selectedLayerIndex}
+                setSelectedLayerIndex={(index) => this.setState({selectedLayerIndex: index})} 
+                openMoveLayerModal={() => this.setState({isMoveLayerModalOpen: true})}
+                openResizeLayerModal={() => this.setState({isResizeLayerModalOpen: true})}
+                sendCommand={this.sendCommand}/>
+              </div> : null }
+              {canvas && <Dimensions canvas={canvas} mainLayer={layers[0]}/>}
             </div>
-            { alert
-            ? <Snackbar open={true} autoHideDuration={6000} onClose={this.setState({alert: null})}>
+            { alert ? 
+            <Snackbar open={true} autoHideDuration={6000} onClose={this.setState({alert: null})}>
                <Alert onClose={this.setState({alert: null})} severity={alert.severity}>
                 {alert.message}
                </Alert>
               </Snackbar> : null }
+            { isMoveLayerModalOpen ? 
+            <MoveLayerModal 
+              isOpen={isMoveLayerModalOpen}
+              close={() => this.setState({isMoveLayerModalOpen: false})} 
+              canvas={canvas} 
+              layer={selectedLayer}
+              mainLayer={layers[0]}
+              sendCommand={this.sendCommand}/> : null}
+            { isResizeLayerModalOpen ? 
+            <ResizeLayerModal 
+              isOpen={isResizeLayerModalOpen}
+              close={() => this.setState({isResizeLayerModalOpen: false})} 
+              canvas={canvas} 
+              layer={selectedLayer}
+              mainLayer={layers[0]}
+              sendCommand={this.sendCommand}/> : null}
            </div>
   }
 }

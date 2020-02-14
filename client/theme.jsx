@@ -18,6 +18,11 @@ export default theme = createMuiTheme({
             inputRoot: {
                 color: "#fff",
             }
+        },
+        MuiTextField: {
+            root: {
+                color: "#fff",
+            }
         }
     }
 });

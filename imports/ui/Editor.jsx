@@ -18,13 +18,15 @@ import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import Clear from '@material-ui/icons/Clear';
 import Download from '@material-ui/icons/GetApp';
 
-import COMMANDS from '../data/Commands';
-import { BOOLEAN, RANGE, SELECT } from '../data/CommandTypes';
+import { COMMANDS } from '../data/Commands';
+import { BOOLEAN, RANGE, SELECT } from '../data/ParamTypes';
+import { AddMenu, AddTextModal } from "./components";
 
 
 export default class Editor extends Component {
   state = {
     selectedCommand: null,
+    isAddTextModalOpen: false
   }
 
   UNSAFE_componentWillMount() {
@@ -41,8 +43,8 @@ export default class Editor extends Component {
     }, 1);
   }
 
-  sendCommand = () => {
-    const state = this.state;
+  sendCommand = (data) => {
+    const state = data || this.state;
     const { selectedCommand } = state;
     const { sendCommand } = this.props;
     const params = [];
@@ -51,7 +53,7 @@ export default class Editor extends Component {
       params.push(state[param.name] || param.defaultValue);
       clearStateParams[param.name] = param.defaultValue;
     });
-    sendCommand(selectedCommand.name, params);
+    sendCommand(selectedCommand, params);
     this.setState({...clearStateParams, selectedCommand: null});
   }
 
@@ -83,6 +85,7 @@ export default class Editor extends Component {
       const { file, clear } = this.props;
       const { _renderCommandSelection, download } = this;
       return <div className="toolbar">
+               <AddMenu file={file} openAddTextModal={() => this.setState({isAddTextModalOpen: true})}/>
                <Clear
                   fontSize="large" 
                   htmlColor={file ? "#fff" : "rgba(0, 0, 0, 0.26)"} 
@@ -100,13 +103,20 @@ export default class Editor extends Component {
   }
 
   download = () => {
-    const { file } = this.props;
-    const a = document.createElement('a');
-    a.href =`/images/${file.file}`;
-    a.download = `/images/${file.file}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const { canvas } = this.props;
+    Meteor.call('generate-final-file', canvas, (error, resultFileName) => { 
+      if (error) { 
+        console.log('error', error); 
+      } 
+      if (resultFileName) { 
+        const a = document.createElement('a');
+        a.href =`/images/${resultFileName}`;
+        a.download = `/images/${resultFileName}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } 
+    });
   }
 
   _generateForm = (params) => {
@@ -212,10 +222,20 @@ export default class Editor extends Component {
            </div>
   }
 
+
+  _renderModals = () => {
+    const { isAddTextModalOpen } = this.state;
+    return <AddTextModal 
+            isOpen={isAddTextModalOpen} 
+            close={() => this.setState({isAddTextModalOpen: false})}
+            sendCommand={this.sendCommand}/>
+  }
+
   render() {
     return <div className="commands">
             {this._renderForm()}
             {this._renderHistory()}
+            {this._renderModals()}
            </div>
   }
 }
