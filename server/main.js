@@ -190,12 +190,11 @@ Meteor.methods({
       }
 
       //The is a delay between JIMP write funcion finishing and the file being created
-      console.log("xibi", finalFileName);
       let isFileCreated = false;
       while(!isFileCreated) {
         isFileCreated = fs.existsSync(`${IMAGE_DIR_PATH}/${finalFileName}`);
       }
-      console.log("bubi")
+
       const imageData = await getImageData(finalFileName);
       const mainLayerImageData = await getImageData(layers[0].file);
       const newLayer = {
@@ -210,7 +209,6 @@ Meteor.methods({
         }
       }
 
-      console.log("here");
       if(fileName && !addNewLayer) {
         _.extend(_.findWhere(layers, { file: fileName }), newLayer);
       } else {
@@ -219,7 +217,6 @@ Meteor.methods({
     } catch(err) {
       throw(err);
     }
-    console.log(layers, params);
     return {layers,params};
   },
 });
