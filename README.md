@@ -1,6 +1,6 @@
 # Meteor + React Image Editor
 
-I created this open source platform to test effects/commands from several node.js image manipulation packages. Open Sourxe Sandbox for image editing developers.
+I created this open source platform to test effects/commands from several node.js image manipulation packages. Open Source Sandbox for image editing developers.
 You don't need any db or image hosting service to run this project. Images are saved locally.
 
 This project is currently under development.
