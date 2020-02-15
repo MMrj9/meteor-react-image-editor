@@ -35,6 +35,7 @@ Current Support Features
 - flip (JIMP)
 - brightness (JIMP)
 - contrast (JIMP)
+- posterize (JIMP)
 - dither565 (JIMP)
 - greyscale (JIMP)
 - invert (JIMP)
@@ -47,6 +48,7 @@ Current Support Features
 - autocrop (JIMP)
 - resize (JIMP)
 - add text (text2png)
+- add image
 - layer move
 - layer delete
 - layer resize (JIMP)
