@@ -46,6 +46,11 @@ const COMMANDS = (canvas) => [
       params: [{ name: "value", type: RANGE, defaultValue: 0, min: -1, max: 1, step: 0.001 }]
     },
     {
+      name: "posterize",
+      description: "Apply a posterize effect",
+      params: [{ name: "value", type: RANGE, defaultValue: 0, min: 0, max: 50, step: 1 }]
+    },
+    {
       name: "dither565",
       description: "Ordered dithering of the image and reduce color space to 16-bits (RGB565)",
       params: []

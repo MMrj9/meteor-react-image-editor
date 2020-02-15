@@ -123,6 +123,9 @@ Meteor.methods({
         case "contrast":
           img.contrast(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
+        case "posterize":
+          img.posterize(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          break
         case "dither565":
           img.dither565().write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
