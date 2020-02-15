@@ -186,6 +186,15 @@ export default class Editor extends Component {
       });
     }
     this.setState({...clearParams, selectedCommand: newCommand});
+    this.clearSelection();
+  }
+
+  clearSelection = () => {
+    const { setStateVariable } = this.props;
+    setStateVariable("selection", "originX", 0);
+    setStateVariable("selection", "originY", 0);
+    setStateVariable("selection", "width", 0);
+    setStateVariable("selection", "height", 0);
   }
 
   _renderCommandSelection = () => {

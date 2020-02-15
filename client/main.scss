@@ -85,8 +85,15 @@ body {
         display: flex;
         justify-content: center;
         align-items: center;
-        .image {
-            max-width: 100%;
+        .layer {
+            &.selected {
+                .image {
+                    outline: 2px solid $green-dark;
+                }
+            }
+            .image {
+                max-width: 100%;
+            }
         }
     
         .selection {

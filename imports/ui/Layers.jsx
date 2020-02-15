@@ -3,12 +3,12 @@ import _ from "underscore";
 import { scaleX, scaleY } from "../helpers/canvas";
 
 const Layers = (props) => {
-    const { layers, canvas, setCanvas } = props;
+    const { layers, canvas, setCanvas, selectedLayerIndex } = props;
     if(_.isEmpty(layers)) {
         return null;
     }
     return layers.map((layer, index) => {
-        return  <div key={index} className="layer" 
+        return  <div key={index} className={`layer ${index === selectedLayerIndex ? "selected" : ""}`}
                 style={{
                     position: index > 0 ? "absolute" : "relative" ,
                     zIndex: index, 

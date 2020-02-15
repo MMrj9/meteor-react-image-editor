@@ -199,7 +199,7 @@ class App extends Component {
               : !shouldRerender 
               ? <div className="canvas" style={{width: canvas.width, height: canvas.height}}>
                   <div className="image-container">
-                    <Layers layers={layers} canvas={canvas} setCanvas={this.setCanvas}/>
+                    <Layers layers={layers} selectedLayerIndex={selectedLayerIndex} canvas={canvas} setCanvas={this.setCanvas}/>
                     {selectedLayer && <Selection selection={selection} selectedLayer={selectedLayer} canvas={canvas}/>}
                   </div>
                 </div>
