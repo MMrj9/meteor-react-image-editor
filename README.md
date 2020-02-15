@@ -1,6 +1,6 @@
 # Meteor + React Image Editor
 
-I created this open source platform to test effects/commands from several node.js image manipulation packages. Open Sourxe Sandbox for image editing developers.
+I created this open source platform to test effects/commands from several node.js image manipulation packages. Open Source Sandbox for image editing developers.
 You don't need any db or image hosting service to run this project. Images are saved locally.
 
 This project is currently under development.
@@ -35,6 +35,7 @@ Current Support Features
 - flip (JIMP)
 - brightness (JIMP)
 - contrast (JIMP)
+- posterize (JIMP)
 - dither565 (JIMP)
 - greyscale (JIMP)
 - invert (JIMP)
@@ -47,6 +48,7 @@ Current Support Features
 - autocrop (JIMP)
 - resize (JIMP)
 - add text (text2png)
+- add image
 - layer move
 - layer delete
 - layer resize (JIMP)
