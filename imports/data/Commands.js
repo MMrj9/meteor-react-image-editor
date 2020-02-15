@@ -87,6 +87,12 @@ const COMMANDS = (canvas) => [
     },
   ]
 
+  const ADD_IMAGE_COMMAND = {
+    name: "add_image",
+    description: "Adds an image",
+    params: [{ name: "fileName", type: STRING, defaultValue: ""},{ name: "fileData", type: STRING, defaultValue: ""}],
+  }
+
   const ADD_TEXT_COMMAND = {
     name: "add_text",
     description: "Adds a text layer with the selected properties",
@@ -110,4 +116,4 @@ const COMMANDS = (canvas) => [
     params: [{ name: "width", type: RANGE, defaultValue: 0}, { name: "heigh", type: RANGE, defaultValue: 0}],
   }
 
-  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND, DELETE_COMMAND, RESIZE_COMMAND }
+  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND, DELETE_COMMAND, RESIZE_COMMAND, ADD_IMAGE_COMMAND }
