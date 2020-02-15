@@ -8,6 +8,7 @@ import Future from "fibers/future";
 
 import "./ImagesServer";
 import { scaleSelectionToRealDimensions } from "../imports/helpers/selection";
+import { getFileExtension, changeFileExtension } from "../imports/helpers/file";
 
 const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#images';
 
@@ -125,6 +126,10 @@ Meteor.methods({
           break
         case "posterize":
           img.posterize(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          break
+        case "opacity":
+          newFileName = getFileExtension(newFileName) !== "png" ? changeFileExtension(newFileName, "png") : newFileName;
+          img.opacity(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
         case "dither565":
           img.dither565().write(`${IMAGE_DIR_PATH}/${newFileName}`);
