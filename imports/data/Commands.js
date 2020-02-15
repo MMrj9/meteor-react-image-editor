@@ -46,6 +46,11 @@ const COMMANDS = (canvas) => [
       params: [{ name: "value", type: RANGE, defaultValue: 0, min: -1, max: 1, step: 0.001 }]
     },
     {
+      name: "posterize",
+      description: "Apply a posterize effect",
+      params: [{ name: "value", type: RANGE, defaultValue: 0, min: 0, max: 50, step: 1 }]
+    },
+    {
       name: "dither565",
       description: "Ordered dithering of the image and reduce color space to 16-bits (RGB565)",
       params: []
@@ -82,6 +87,12 @@ const COMMANDS = (canvas) => [
     },
   ]
 
+  const ADD_IMAGE_COMMAND = {
+    name: "add_image",
+    description: "Adds an image",
+    params: [{ name: "fileName", type: STRING, defaultValue: ""},{ name: "fileData", type: STRING, defaultValue: ""}],
+  }
+
   const ADD_TEXT_COMMAND = {
     name: "add_text",
     description: "Adds a text layer with the selected properties",
@@ -105,4 +116,4 @@ const COMMANDS = (canvas) => [
     params: [{ name: "width", type: RANGE, defaultValue: 0}, { name: "heigh", type: RANGE, defaultValue: 0}],
   }
 
-  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND, DELETE_COMMAND, RESIZE_COMMAND }
+  export { COMMANDS, ADD_TEXT_COMMAND, MOVE_COMMAND, DELETE_COMMAND, RESIZE_COMMAND, ADD_IMAGE_COMMAND }

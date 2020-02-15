@@ -20,13 +20,14 @@ import Download from '@material-ui/icons/GetApp';
 
 import { COMMANDS } from '../data/Commands';
 import { BOOLEAN, RANGE, SELECT } from '../data/ParamTypes';
-import { AddMenu, AddTextModal } from "./components";
+import { AddMenu, AddTextModal, AddImageModal } from "./components";
 
 
 export default class Editor extends Component {
   state = {
     selectedCommand: null,
-    isAddTextModalOpen: false
+    isAddTextModalOpen: false,
+    isAddImageModalOpen: false,
   }
 
   UNSAFE_componentWillMount() {
@@ -85,7 +86,10 @@ export default class Editor extends Component {
       const { file, clear } = this.props;
       const { _renderCommandSelection, download } = this;
       return <div className="toolbar">
-               <AddMenu file={file} openAddTextModal={() => this.setState({isAddTextModalOpen: true})}/>
+               <AddMenu 
+                file={file} 
+                openAddTextModal={() => this.setState({isAddTextModalOpen: true})}
+                openAddImageModal={() => this.setState({isAddImageModalOpen: true})}/>
                <Clear
                   fontSize="large" 
                   htmlColor={file ? "#fff" : "rgba(0, 0, 0, 0.26)"} 
@@ -224,11 +228,17 @@ export default class Editor extends Component {
 
 
   _renderModals = () => {
-    const { isAddTextModalOpen } = this.state;
-    return <AddTextModal 
+    const { isAddTextModalOpen, isAddImageModalOpen } = this.state;
+    return <>
+            <AddTextModal 
             isOpen={isAddTextModalOpen} 
             close={() => this.setState({isAddTextModalOpen: false})}
             sendCommand={this.sendCommand}/>
+            <AddImageModal 
+            isOpen={isAddImageModalOpen} 
+            close={() => this.setState({isAddImageModalOpen: false})}
+            sendCommand={this.sendCommand}/>
+          </>
   }
 
   render() {

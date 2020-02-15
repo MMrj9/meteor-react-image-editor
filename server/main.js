@@ -123,6 +123,9 @@ Meteor.methods({
         case "contrast":
           img.contrast(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
+        case "posterize":
+          img.posterize(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          break
         case "dither565":
           img.dither565().write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
@@ -153,6 +156,12 @@ Meteor.methods({
           addNewLayer = true;
           fs.writeFileSync(`${IMAGE_DIR_PATH}/${newFileName}`, text2png(text, {color: 'blue'}));
           break;
+        case "add_image":
+          newFileName= `${timestamp}${params[0]}`;
+          addNewLayer = true; 
+          fs.writeFileSync(`${IMAGE_DIR_PATH}/${newFileName}`, params[1], 'binary');
+          params[1] = "fileData";
+          break;
         case "move":
           finalXOrigin = params[0];
           finalYOrigin = params[1];
@@ -181,10 +190,12 @@ Meteor.methods({
       }
 
       //The is a delay between JIMP write funcion finishing and the file being created
+      console.log("xibi", finalFileName);
       let isFileCreated = false;
       while(!isFileCreated) {
         isFileCreated = fs.existsSync(`${IMAGE_DIR_PATH}/${finalFileName}`);
       }
+      console.log("bubi")
       const imageData = await getImageData(finalFileName);
       const mainLayerImageData = await getImageData(layers[0].file);
       const newLayer = {
@@ -199,6 +210,7 @@ Meteor.methods({
         }
       }
 
+      console.log("here");
       if(fileName && !addNewLayer) {
         _.extend(_.findWhere(layers, { file: fileName }), newLayer);
       } else {
@@ -207,7 +219,7 @@ Meteor.methods({
     } catch(err) {
       throw(err);
     }
-
+    console.log(layers, params);
     return {layers,params};
   },
 });

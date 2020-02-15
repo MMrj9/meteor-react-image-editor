@@ -4,7 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
 export default SimpleMenu = (props) => {
-  const { openAddTextModal, file } = props;
+  const { openAddTextModal, openAddImageModal, file } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   
   const handleClick = event => {
@@ -17,6 +17,11 @@ export default SimpleMenu = (props) => {
 
   const openTextModal = () => {
     openAddTextModal();
+    setAnchorEl(null);
+  }
+
+  const openImageModal = () => {
+    openAddImageModal();
     setAnchorEl(null);
   }
 
@@ -37,6 +42,7 @@ export default SimpleMenu = (props) => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
         >
+        <MenuItem onClick={openImageModal}>Image</MenuItem>
         <MenuItem onClick={openTextModal}>Text</MenuItem>
         </Menu>
     </div>
