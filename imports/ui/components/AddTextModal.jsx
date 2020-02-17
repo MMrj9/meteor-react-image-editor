@@ -2,6 +2,8 @@ import React from 'react';
 import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import { FormLabel } from '@material-ui/core';
+import { SketchPicker } from 'react-color';
 
 import { ADD_TEXT_COMMAND } from '../../data/Commands';
 
@@ -9,6 +11,8 @@ export default AddTextModal = (props) => {
   const { isOpen, close, sendCommand } = props;
   const [open, setOpen] = React.useState(false);
   const [text, setText] = React.useState("");
+  const [fontSize, setFontSize] = React.useState(30);
+  const [color, setColor] = React.useState("#fff");
 
   if(isOpen && !open) {
     setOpen(true);
@@ -22,12 +26,12 @@ export default AddTextModal = (props) => {
   const handleSubmit = () => {
     const data = {
       selectedCommand: ADD_TEXT_COMMAND,
-      text
+      text, fontSize, color, 
     }
     sendCommand(data);
     close();
   };
-
+  
   return (
       <Modal
         aria-labelledby="simple-modal-title"
@@ -41,7 +45,16 @@ export default AddTextModal = (props) => {
             <span>Add Text</span>
           </div>
           <form noValidate autoComplete="off">
-            <TextField style={{minWidth: 200}} label="Text" value={text} onChange={(e) => setText(e.target.value)}/>
+            <TextField label="Text" InputLabelProps={{shrink: true}} value={text} onChange={(e) => setText(e.target.value)}/>
+            <div className="flex-row">
+              <div className="flex-column">
+                <TextField label="Font Size (px)" type="number" InputLabelProps={{shrink: true}} value={fontSize} onChange={(e) => setFontSize(e.target.value)}/>
+              </div>
+              <div className="flex-column">
+                <FormLabel>Text Color</FormLabel>
+                <SketchPicker name='color' color={color} onChange={color => setColor(color.hex)}/>  
+              </div>
+            </div>
           </form>
           <div className="modal-actions">
             <Button 

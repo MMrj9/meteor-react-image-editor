@@ -158,10 +158,10 @@ Meteor.methods({
           img.blur(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
         case "add_text":
-          const text = params[0];
           newFileName= `${timestamp}.png`;
           addNewLayer = true;
-          fs.writeFileSync(`${IMAGE_DIR_PATH}/${newFileName}`, text2png(text, {color: 'blue'}));
+          fs.writeFileSync(`${IMAGE_DIR_PATH}/${newFileName}`, 
+            text2png(params[0], { font: `${params[1]}px Futura`, color: params[2], }));
           break;
         case "add_image":
           newFileName= `${timestamp}${params[0]}`;
