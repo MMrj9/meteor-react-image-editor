@@ -27,6 +27,7 @@ export default AddImageModal = (props) => {
           fileData: reader.result
       }
       sendCommand(data);
+      handleClose();
     };
     reader.readAsBinaryString(file);
   }
@@ -40,7 +41,9 @@ export default AddImageModal = (props) => {
         style={{display:'flex',alignItems:'center',justifyContent:'center'}}
       >
         <div className="modal add-modal">
-          <span>Add Image</span>
+          <div className="modal-header">
+            <span>Add Image</span>
+          </div>
           <form noValidate autoComplete="off">
             <Button
             variant="contained"

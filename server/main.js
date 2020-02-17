@@ -8,12 +8,14 @@ import Future from "fibers/future";
 
 import "./ImagesServer";
 import { scaleSelectionToRealDimensions } from "../imports/helpers/selection";
+import { getFileExtension, changeFileExtension } from "../imports/helpers/file";
 
 const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#images';
 
 /*
 * 
  {
+  id: null
   file: null
   imageData: {
       width: null,
@@ -37,6 +39,7 @@ Meteor.methods({
       fs.writeFileSync(`${IMAGE_DIR_PATH}/${fileName}`, fileData, 'binary');
       const imageData = await getImageData(fileName);
       const newLayer = {
+        id: 0,
         file: fileName,
         imageData: {
           width: imageData.width,
@@ -126,6 +129,10 @@ Meteor.methods({
         case "posterize":
           img.posterize(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
+        case "opacity":
+          newFileName = getFileExtension(newFileName) !== "png" ? changeFileExtension(newFileName, "png") : newFileName;
+          img.opacity(params[0]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          break
         case "dither565":
           img.dither565().write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break
@@ -190,15 +197,14 @@ Meteor.methods({
       }
 
       //The is a delay between JIMP write funcion finishing and the file being created
-      console.log("xibi", finalFileName);
       let isFileCreated = false;
       while(!isFileCreated) {
         isFileCreated = fs.existsSync(`${IMAGE_DIR_PATH}/${finalFileName}`);
       }
-      console.log("bubi")
       const imageData = await getImageData(finalFileName);
       const mainLayerImageData = await getImageData(layers[0].file);
       const newLayer = {
+        id: addNewLayer ? layers.length : layer.id, 
         file: finalFileName,
         imageData: {
           width: imageData.width,
@@ -210,16 +216,14 @@ Meteor.methods({
         }
       }
 
-      console.log("here");
       if(fileName && !addNewLayer) {
-        _.extend(_.findWhere(layers, { file: fileName }), newLayer);
+        _.extend(_.findWhere(layers, { id: layer.id }), newLayer);
       } else {
         layers.push(newLayer);
       }
     } catch(err) {
       throw(err);
     }
-    console.log(layers, params);
     return {layers,params};
   },
 });

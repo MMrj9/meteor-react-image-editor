@@ -51,6 +51,11 @@ const COMMANDS = (canvas) => [
       params: [{ name: "value", type: RANGE, defaultValue: 0, min: 0, max: 50, step: 1 }]
     },
     {
+      name: "opacity",
+      description: "Multiplies the opacity of each pixel by a factor between 0 and 1.",
+      params: [{ name: "value", type: RANGE, defaultValue: 1, min: 0, max: 1, step: 0.01 }]
+    },
+    {
       name: "dither565",
       description: "Ordered dithering of the image and reduce color space to 16-bits (RGB565)",
       params: []

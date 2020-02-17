@@ -37,7 +37,9 @@ export default AddTextModal = (props) => {
         style={{display:'flex',alignItems:'center',justifyContent:'center'}}
       >
         <div className="modal add-modal">
-          <span>Add Text</span>
+          <div className="modal-header">
+            <span>Add Text</span>
+          </div>
           <form noValidate autoComplete="off">
             <TextField style={{minWidth: 200}} label="Text" value={text} onChange={(e) => setText(e.target.value)}/>
           </form>

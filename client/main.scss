@@ -18,6 +18,7 @@ body {
 }
   
 .editor {
+    max-width: 40%;
     flex: 1;
     background-color: $black;
     padding: 20px;
@@ -85,8 +86,15 @@ body {
         display: flex;
         justify-content: center;
         align-items: center;
-        .image {
-            max-width: 100%;
+        .layer {
+            &.selected {
+                .image {
+                    outline: 2px solid $green-dark;
+                }
+            }
+            .image {
+                max-width: 100%;
+            }
         }
     
         .selection {
@@ -108,17 +116,18 @@ body {
         display: flex;
         align-items: flex-end;
         position: absolute;
+        z-index: 9999;
         bottom: 0;
         left: 10px;
-        padding: 10px;
+        padding: 20px;
         background-color: rgba(58,56,79,0.5);
         .layer {
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             padding: 10px;
             cursor: pointer;
             &.selected{
@@ -129,7 +138,7 @@ body {
             }
             .actions {
                 position: absolute;
-                bottom: 10px;
+                bottom: 0px;
                 right: 10px;  
                 .disabled {
                     color: rgba(0, 0, 0, 0.26);
@@ -147,8 +156,8 @@ body {
         }
         .collapse {
             position: absolute;
-            top: 10px;
-            right: 20px;
+            top: -2px;
+            right: 0px;
         }
     }
 }
@@ -162,12 +171,25 @@ body {
     background-color: $black;
     padding: 20px;
 
+    .modal-header {
+        margin-bottom: 10px;
+        span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    }
+
     form {
         display: flex;
         flex-direction: column;
     }
 
     .modal-actions {
+        display: flex;
+        justify-content: flex-end;
         margin-top: 20px;
+        button {
+            margin-left: 10px;
+        }
     }
 }
