@@ -35,6 +35,7 @@ Current Support Features
 - flip (JIMP)
 - brightness (JIMP)
 - contrast (JIMP)
+- opacity (JIMP)
 - posterize (JIMP)
 - dither565 (JIMP)
 - greyscale (JIMP)
