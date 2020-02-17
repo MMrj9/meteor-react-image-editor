@@ -23,6 +23,22 @@ export default theme = createMuiTheme({
             root: {
                 color: "#fff",
             }
+        },
+        MuiSelect: {
+            root: {
+                color: "#000",
+                minWidth: 100,
+            }
+        },
+        MuiFormLabel: {
+            root: {
+                color: "#fff",
+            }
+        },
+        MuiInputBase: {
+            input: {
+                marginTop: "10px !important",
+            }
         }
     }
 });

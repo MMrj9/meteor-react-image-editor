@@ -101,7 +101,7 @@ const COMMANDS = (canvas) => [
   const ADD_TEXT_COMMAND = {
     name: "add_text",
     description: "Adds a text layer with the selected properties",
-    params: [{ name: "text", type: STRING, defaultValue: ""}],
+    params: [{ name: "text", type: STRING, defaultValue: ""}, { name: "font", type: STRING, defaultValue: "Futura"},  {name: "fontSize", type: STRING, defaultValue: ""}, {name: "color", type: STRING, defaultValue: ""}],
   }
 
   const MOVE_COMMAND = {

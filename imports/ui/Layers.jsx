@@ -21,6 +21,7 @@ const Layers = (props) => {
                     className="image" 
                     style={{
                         maxWidth: index > 0 ? scaleX(layers[0], canvas ,layer.imageData.width) : "100%",
+                        maxHeight: index === 0 ? "90vh" : "100%"
                     }}
                     onLoad={(img) => index===0 && setCanvas(img.target)}/> 
                 </div>

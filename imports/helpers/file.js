@@ -8,4 +8,10 @@ const changeFileExtension = (fileName, newExtension) => {
     return fileName.slice(0, lastOccurenceIndex) + fileName.slice(lastOccurenceIndex).replace(oldExtension, newExtension);
 }
 
-export { changeFileExtension, getFileExtension };
+const removeFileExtension = (fileName) => {
+    const extension = "." + fileName.split('.').pop();
+    return fileName.replace(extension, '');
+
+}
+
+export { changeFileExtension, getFileExtension, removeFileExtension };
