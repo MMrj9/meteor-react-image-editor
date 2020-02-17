@@ -15,6 +15,7 @@ const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#ima
 /*
 * 
  {
+  id: null
   file: null
   imageData: {
       width: null,
@@ -38,6 +39,7 @@ Meteor.methods({
       fs.writeFileSync(`${IMAGE_DIR_PATH}/${fileName}`, fileData, 'binary');
       const imageData = await getImageData(fileName);
       const newLayer = {
+        id: 0,
         file: fileName,
         imageData: {
           width: imageData.width,
@@ -199,10 +201,10 @@ Meteor.methods({
       while(!isFileCreated) {
         isFileCreated = fs.existsSync(`${IMAGE_DIR_PATH}/${finalFileName}`);
       }
-
       const imageData = await getImageData(finalFileName);
       const mainLayerImageData = await getImageData(layers[0].file);
       const newLayer = {
+        id: addNewLayer ? layers.length : layer.id, 
         file: finalFileName,
         imageData: {
           width: imageData.width,
@@ -215,7 +217,7 @@ Meteor.methods({
       }
 
       if(fileName && !addNewLayer) {
-        _.extend(_.findWhere(layers, { file: fileName }), newLayer);
+        _.extend(_.findWhere(layers, { id: layer.id }), newLayer);
       } else {
         layers.push(newLayer);
       }
