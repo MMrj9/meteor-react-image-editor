@@ -32,7 +32,6 @@ export default AddImageModal = (props) => {
     reader.readAsBinaryString(file);
   }
 
-  console.log(open);
   return (
       <Modal
         aria-labelledby="simple-modal-title"
