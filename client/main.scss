@@ -96,6 +96,7 @@ body {
         display: flex;
         justify-content: center;
         align-items: center;
+        overflow: hidden;
         .layer {
             &.selected {
                 .image {
@@ -126,7 +127,7 @@ body {
         display: flex;
         align-items: flex-end;
         position: absolute;
-        z-index: 9990;
+        z-index: 1000;
         bottom: 0;
         left: 10px;
         padding: 20px;
@@ -153,6 +154,9 @@ body {
                 .disabled {
                     color: rgba(0, 0, 0, 0.26);
                 }          
+                svg {
+                    margin: "0 5px";
+                }
             }
         }
 
@@ -169,6 +173,16 @@ body {
             top: -2px;
             right: 0px;
         }
+    }
+}
+
+button {
+    &.link {
+        padding: 0;
+        background-color: transparent;
+        border: 0;
+        box-shadow: 0px 0px;
+        color: "#fff";
     }
 }
 

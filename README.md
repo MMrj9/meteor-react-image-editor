@@ -49,6 +49,7 @@ Current Support Features
 - autocrop (JIMP)
 - resize (JIMP)
 - add text (text2png)
+- TTF font support
 - add image
 - layer move
 - layer delete

@@ -24,6 +24,12 @@ export default theme = createMuiTheme({
                 color: "#fff",
             }
         },
+        MuiSelect: {
+            root: {
+                color: "#000",
+                minWidth: 100,
+            }
+        },
         MuiFormLabel: {
             root: {
                 color: "#fff",

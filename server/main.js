@@ -8,9 +8,10 @@ import Future from "fibers/future";
 
 import "./ImagesServer";
 import { scaleSelectionToRealDimensions } from "../imports/helpers/selection";
-import { getFileExtension, changeFileExtension } from "../imports/helpers/file";
+import { getFileExtension, changeFileExtension, removeFileExtension } from "../imports/helpers/file";
 
 const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#images';
+const FONT_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#fonts';
 
 /*
 * 
@@ -26,11 +27,14 @@ const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#ima
     y: null
   }
 */
-let layers = []
+let layers = [];
+let fonts = [];
 
 Meteor.startup(function() {
   //Delete all files from image directory
   deleteAllFiles();
+  //Update font list
+  getFonts();
 });
 
 Meteor.methods({
@@ -160,8 +164,19 @@ Meteor.methods({
         case "add_text":
           newFileName= `${timestamp}.png`;
           addNewLayer = true;
-          fs.writeFileSync(`${IMAGE_DIR_PATH}/${newFileName}`, 
-            text2png(params[0], { font: `${params[1]}px Futura`, color: params[2], }));
+          if(params[1] === "Futura") {
+            fs.writeFileSync(`${IMAGE_DIR_PATH}/${newFileName}`, 
+            text2png(params[0], { 
+              font: `${params[2]}px Futura`, 
+              color: params[3],}));
+          } else {
+            fs.writeFileSync(`${IMAGE_DIR_PATH}/${newFileName}`, 
+            text2png(params[0], { 
+              font: `${params[2]}px ${params[1]}`, 
+              color: params[3], 
+              localFontPath: params[1] ? `${FONT_DIR_PATH}/${params[1]}.ttf` : null, 
+              localFontName:  params[1] ? params[1] : null}));
+          }
           break;
         case "add_image":
           newFileName= `${timestamp}${params[0]}`;
@@ -176,6 +191,7 @@ Meteor.methods({
           break;
         case "delete":
           isDelete = true;
+          break;
         case "resize":
           img.resize(params[0], params[1]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
           break;
@@ -226,6 +242,19 @@ Meteor.methods({
     }
     return {layers,params};
   },
+  'font-upload': async (fileName, fileData) => {
+    try {
+      fs.writeFileSync(`${FONT_DIR_PATH}/${fileName}`, fileData, 'binary');
+      const newFont = removeFileExtension(fileName);
+      fonts.push(newFont);
+      return fonts;
+    } catch(err) {
+      throw(err);
+    }
+  },
+  'get-fonts': async () => {
+    return fonts;
+  },
 });
 
 
@@ -257,4 +286,13 @@ const deleteAllFiles = () => {
         }
       }
     });
+}
+
+const getFonts = () => {
+  fs.readdir(FONT_DIR_PATH, (err, files) => {
+    files.forEach(file => {
+      const font = removeFileExtension(file);
+      fonts.push(font);
+    });
+  });
 }
