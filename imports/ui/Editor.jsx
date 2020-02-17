@@ -55,7 +55,7 @@ export default class Editor extends Component {
       clearStateParams[param.name] = param.defaultValue;
     });
     sendCommand(selectedCommand, params);
-    this.setState({...clearStateParams, selectedCommand: null});
+    this.setState({...clearStateParams, selectedCommand: null, isAddTextModalOpen: false, isAddImageModalOpen: false});
   }
 
   _renderForm = () => {

@@ -18,6 +18,7 @@ body {
 }
   
 .editor {
+    max-width: 40%;
     flex: 1;
     background-color: $black;
     padding: 20px;
@@ -137,7 +138,7 @@ body {
             }
             .actions {
                 position: absolute;
-                bottom: -2px;
+                bottom: 0px;
                 right: 10px;  
                 .disabled {
                     color: rgba(0, 0, 0, 0.26);
@@ -170,12 +171,25 @@ body {
     background-color: $black;
     padding: 20px;
 
+    .modal-header {
+        margin-bottom: 10px;
+        span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    }
+
     form {
         display: flex;
         flex-direction: column;
     }
 
     .modal-actions {
+        display: flex;
+        justify-content: flex-end;
         margin-top: 20px;
+        button {
+            margin-left: 10px;
+        }
     }
 }
