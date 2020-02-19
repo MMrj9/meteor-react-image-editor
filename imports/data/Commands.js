@@ -90,6 +90,11 @@ const COMMANDS = (canvas) => [
       description: "Fast blur the image by r pixels",
       params: [{ name: "value", type: RANGE, defaultValue: 1, min: 1, max: 100, step: 1 }]
     },
+    {
+      name: "face_detection",
+      description: "Detects all faces on the given image",
+      params: []
+    },
   ]
 
   const ADD_IMAGE_COMMAND = {
