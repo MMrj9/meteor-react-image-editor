@@ -10,8 +10,14 @@ import "./ImagesServer";
 import { scaleSelectionToRealDimensions } from "../imports/helpers/selection";
 import { getFileExtension, changeFileExtension, removeFileExtension } from "../imports/helpers/file";
 
+import '@tensorflow/tfjs-node';
+import * as nodeCanvas from 'canvas';
+import * as faceapi from 'face-api.js';
+
+
 const IMAGE_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#images';
 const FONT_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../public/.#fonts';
+const WEIGHTS_DIR_PATH = process.env['METEOR_SHELL_DIR'] + '/../../../server/weights';
 
 /*
 * 
@@ -104,7 +110,7 @@ Meteor.methods({
     let finalFileName, finalXOrigin, finalYOrigin, isDelete;
     let addNewLayer = false;
     finalFileName = await Jimp.read(`${IMAGE_DIR_PATH}/${fileName}`)
-    .then(img => {
+    .then(async (img) => {
       let newFileName= `${timestamp}${fileName}`;
       switch (command.name) {
         case "autocrop":
@@ -194,6 +200,19 @@ Meteor.methods({
           break;
         case "resize":
           img.resize(params[0], params[1]).write(`${IMAGE_DIR_PATH}/${newFileName}`);
+          break;
+        case "face_detection":
+          const { Canvas, Image, ImageData } = nodeCanvas;
+          faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
+          const faceDetectionNet = faceapi.nets.ssdMobilenetv1;
+          const minConfidence = 0.5
+          const SsdMobilenetv1Options = new faceapi.SsdMobilenetv1Options({ minConfidence })
+          await faceDetectionNet.loadFromDisk(WEIGHTS_DIR_PATH);
+          const img = await nodeCanvas.loadImage(`${IMAGE_DIR_PATH}/${layer.file}`);
+          const detections = await faceapi.detectAllFaces(img, SsdMobilenetv1Options);
+          const out = faceapi.createCanvasFromMedia(img);
+          faceapi.draw.drawDetections(out, detections);
+          fs.writeFileSync(`${IMAGE_DIR_PATH}/${newFileName}`, out.toBuffer('image/jpeg'));
           break;
         default:
           break;
