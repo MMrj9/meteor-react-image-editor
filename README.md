@@ -33,6 +33,12 @@ You have an history console where you can check the chain of effects that you ap
 You can download the generated image.
 
 Current Support Features
+- add text (text2png)
+- TTF font support
+- add image
+- layer move
+- layer delete
+- layer resize (JIMP)
 - flip (JIMP)
 - brightness (JIMP)
 - contrast (JIMP)
@@ -49,12 +55,7 @@ Current Support Features
 - crop (JIMP)
 - autocrop (JIMP)
 - resize (JIMP)
-- add text (text2png)
-- TTF font support
-- add image
-- layer move
-- layer delete
-- layer resize (JIMP)
+- face detection (face-api.js)
 
 ## Support
 
